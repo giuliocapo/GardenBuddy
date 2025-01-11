@@ -7,41 +7,57 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.gardenbuddy.ui.screens.HomeScreen
 import com.example.gardenbuddy.ui.theme.GardenBuddyTheme
+import com.example.gardenbuddy.ui.screens.SettingsScreen
+import com.example.gardenbuddy.ui.screens.GardenScreen
+import com.example.gardenbuddy.utils.FirebaseInitializer
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Inizializzazione Firebase
+        FirebaseInitializer.init(this)
+
         enableEdgeToEdge()
         setContent {
             GardenBuddyTheme {
-                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                AppScaffold()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun AppScaffold() {
+    val navController = rememberNavController()
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = "home",
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("home") { HomeScreen(navController) }
+            composable("settings") { SettingsScreen(navController) }
+            composable("plant_details") { GardenScreen(navController) }
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun AppScaffoldPreview() {
     GardenBuddyTheme {
-        Greeting("Android")
+        AppScaffold()
     }
 }
