@@ -1,0 +1,188 @@
+@startuml
+skinparam style strict
+
+title GardenBuddy - MVVM UML Diagram
+
+' Organizzazione in package principali
+package "data" {
+
+  package "api" {
+    class OpenWeatherMapService {
+      + getWeatherData(location : String) : WeatherData
+    }
+
+    class PlantRecognitionService {
+      + recognizePlant(photo : Bitmap) : PlantInfo
+    }
+  }
+
+  package "models" {
+    class Garden {
+      - id : String
+      - name : String
+      - latitude : Double
+      - longitude : Double
+      - dimension : Double
+      - photos : List<String>
+      - plants : List<Plant>  ' Facoltativo: se prevedi di modellare anche la classe Plant
+      --
+      + getId() : String
+      + getName() : String
+      + getLatitude() : Double
+      + getLongitude() : Double
+      + getDimension() : Double
+      + getPhotos() : List<String>
+      + getPlants() : List<Plant>
+    }
+
+    ' Classe opzionale, se vuoi mantenere la definizione di piante separate
+    class Plant {
+      - plantId : String
+      - plantName : String
+      - plantType : String
+      --
+      + getPlantId() : String
+      + getPlantName() : String
+      + getPlantType() : String
+    }
+
+    class User {
+      - userId : String
+      - name : String
+      - email : String
+      - weight : Double
+      --
+      + getUserId() : String
+      + getName() : String
+      + getEmail() : String
+      + getWeight() : Double
+    }
+
+    class WeatherData {
+      - temperature : Double
+      - humidity : Double
+      - windSpeed : Double
+      - description : String
+      --
+      + getTemperature() : Double
+      + getHumidity() : Double
+      + getWindSpeed() : Double
+      + getDescription() : String
+    }
+  }
+
+  package "repositories" {
+    class GardenRepository {
+      + getAllGardens() : List<Garden>
+      + getGardenById(id : String) : Garden
+      + insertGarden(garden : Garden)
+      + updateGarden(garden : Garden)
+      + deleteGarden(id : String)
+    }
+
+    class WeatherRepository {
+      + fetchWeatherData(location : String) : WeatherData
+    }
+
+    class AuthRepository {
+      + signIn(email : String, password : String)
+      + signUp(email : String, password : String, name : String, weight : Double)
+      + signOut()
+    }
+  }
+}
+
+package "ui" {
+  package "screens" {
+    class ActivityBoardScreen {
+      + showActivityList()
+    }
+    class ActivityBoardScreenViewModel {
+      + loadActivities()
+      + addActivity()
+      + removeActivity()
+    }
+
+    class GardenScreen {
+      + showGarden(gardenId : String)
+    }
+    class GardenScreenViewModel {
+      + loadGarden(gardenId : String)
+      + saveGarden(garden : Garden)
+      + deleteGarden(gardenId : String)
+    }
+
+    class HomeScreen {
+      + showHome()
+    }
+    class HomeScreenViewModel {
+      + loadWeatherData(location : String)
+      + getUserInfo()
+    }
+
+    class UserProfileScreen {
+      + showUserProfile(userId : String)
+    }
+    class UserProfileScreenViewModel {
+      + loadUserProfile(userId : String)
+      + updateUserInfo(user : User)
+    }
+  }
+
+  package "theme" {
+    ' Eventuali classi o file relativi al tema grafico, color palette, typography, etc.
+    class AppTheme {
+    }
+  }
+}
+
+package "utils" {
+  class FirebaseInitializer {
+    + initFirebase()
+  }
+
+  class SensorUtils {
+    + startStepCounting()
+    + stopStepCounting()
+    + getGPSLocation() : Location
+  }
+}
+
+' MainActivity al di fuori dei package data, ui, utils
+class MainActivity {
+  + onCreate()
+}
+
+' =============================================================================
+' RELAZIONI
+' =============================================================================
+
+' ------------------ Esempio di relazioni tra ViewModel e Repository ------------------
+ActivityBoardScreenViewModel --> GardenRepository : uses
+GardenScreenViewModel --> GardenRepository : uses
+HomeScreenViewModel --> WeatherRepository : uses
+UserProfileScreenViewModel --> AuthRepository : uses
+
+' ------------------ Esempio di relazioni tra Repository e Service --------------------
+GardenRepository --> FirebaseInitializer : uses (CRUD gardens)
+AuthRepository --> FirebaseInitializer : uses (login/registration)
+WeatherRepository --> OpenWeatherMapService : uses
+
+' (Facoltativo) se vuoi mostrare l'uso del riconoscimento piante
+GardenRepository --> PlantRecognitionService : uses
+
+' ------------------ Esempio di relazioni con SensorUtils (GPS/Accelerometro) ---------
+SensorUtils -[hidden]--> HomeScreenViewModel
+SensorUtils -[hidden]--> ActivityBoardScreenViewModel
+' Se un ViewModel o Repository utilizza direttamente i sensori, puoi rendere visibile la relazione
+
+' ------------------ Esempio di relazioni tra View (Screen) e ViewModel ---------------
+ActivityBoardScreen --> ActivityBoardScreenViewModel : observes
+GardenScreen --> GardenScreenViewModel : observes
+HomeScreen --> HomeScreenViewModel : observes
+UserProfileScreen --> UserProfileScreenViewModel : observes
+
+' MainActivity come entry point generale (navigator verso le varie screen)
+MainActivity --> HomeScreen
+
+@enduml
