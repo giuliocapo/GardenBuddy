@@ -13,10 +13,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.gardenbuddy.ui.screens.HomeScreen
+import com.example.gardenbuddy.ui.screens.homescreen.HomeScreen
 import com.example.gardenbuddy.ui.theme.GardenBuddyTheme
-import com.example.gardenbuddy.ui.screens.SettingsScreen
-import com.example.gardenbuddy.ui.screens.GardenScreen
+import com.example.gardenbuddy.ui.screens.userprofilescreen.SettingsScreen
+import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreen
 import com.example.gardenbuddy.utils.FirebaseInitializer
 
 class MainActivity : ComponentActivity() {

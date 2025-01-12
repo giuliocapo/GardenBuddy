@@ -1,4 +1,4 @@
-package com.example.gardenbuddy.ui.screens
+package com.example.gardenbuddy.ui.screens.gardenscreen
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

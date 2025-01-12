@@ -1,4 +1,4 @@
-package com.example.gardenbuddy.ui.screens
+package com.example.gardenbuddy.ui.screens.homescreen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button

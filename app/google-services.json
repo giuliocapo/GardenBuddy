@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "510342124913",
+    "project_id": "gardenbuddy-dfa1a",
+    "storage_bucket": "gardenbuddy-dfa1a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:510342124913:android:f0f86ce704c6c7b88892d0",
+        "android_client_info": {
+          "package_name": "com.example.gardenbuddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmnRJbck4oBfyCYkHF1RbYtsZLUi_z1CM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
