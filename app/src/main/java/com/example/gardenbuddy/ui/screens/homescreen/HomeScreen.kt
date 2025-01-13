@@ -10,8 +10,8 @@ import androidx.navigation.NavController
 fun HomeScreen(navController: NavController) {
     Column {
         Text(text = "Welcome to GardenBuddy!")
-        Button(onClick = { navController.navigate("settings") }) {
-            Text("Go to Settings")
+        Button(onClick = { navController.navigate("plant_details") }) {
+            Text("Go to plant_details")
         }
     }
 }

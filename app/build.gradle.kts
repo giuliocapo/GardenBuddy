@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // Aggiungi il plugin di Google Services
+    alias(libs.plugins.google.services)
 }
 
 android {

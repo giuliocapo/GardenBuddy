@@ -10,23 +10,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.gardenbuddy.ui.screens.LogInScreen
+import com.example.gardenbuddy.ui.screens.SignUpScreen
+import com.example.gardenbuddy.ui.screens.UserProfileScreen
 import com.example.gardenbuddy.ui.screens.homescreen.HomeScreen
 import com.example.gardenbuddy.ui.theme.GardenBuddyTheme
-import com.example.gardenbuddy.ui.screens.userprofilescreen.SettingsScreen
-import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreen
 import com.example.gardenbuddy.utils.FirebaseInitializer
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
-        // Inizializzazione Firebase
+        // Inizializza Firebase
         FirebaseInitializer.init(this)
 
-        enableEdgeToEdge()
         setContent {
             GardenBuddyTheme {
                 AppScaffold()
@@ -42,14 +44,32 @@ fun AppScaffold() {
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        NavHost(
+        NavigationHost(
             navController = navController,
-            startDestination = "home",
             modifier = Modifier.padding(innerPadding)
-        ) {
-            composable("home") { HomeScreen(navController) }
-            composable("settings") { SettingsScreen(navController) }
-            composable("plant_details") { GardenScreen(navController) }
+        )
+    }
+}
+
+@Composable
+fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifier) {
+    NavHost(
+        navController = navController,
+        startDestination = "logIn",
+        modifier = modifier
+    ) {
+        composable("logIn") {
+            LogInScreen(navController)
+        }
+        composable("signUp") {
+            SignUpScreen(navController)
+        }
+        composable("home") {
+            HomeScreen(navController)
+        }
+        composable("userProfile/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            UserProfileScreen(userId = userId)
         }
     }
 }
