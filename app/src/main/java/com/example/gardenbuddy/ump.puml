@@ -49,14 +49,17 @@ package "data" {
     class User {
       - userId : String
       - name : String
+      - birthDate : Date
       - email : String
       - weight : Double
       --
       + getUserId() : String
       + getName() : String
+      + getBirthDate() : Date
       + getEmail() : String
       + getWeight() : Double
     }
+
 
     class WeatherData {
       - temperature : Double
