@@ -19,9 +19,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gardenbuddy.R
 import com.example.gardenbuddy.data.models.User
+import com.example.gardenbuddy.ui.theme.darkGreen
+import com.example.gardenbuddy.ui.theme.softGreen
 import com.example.gardenbuddy.utils.toFormattedString
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 @Composable
 fun UserProfileScreen(
@@ -78,7 +81,7 @@ fun UserProfileContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFB2D8B2)) // Verde tenue
+            .background(softGreen) // Verde tenue
     ) {
         // Barra in alto
         // Barra in alto con pulsante Salva
@@ -86,7 +89,7 @@ fun UserProfileContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .background(Color(0xFF6ABF69)), // Verde più scuro
+                .background(darkGreen), // Verde più scuro
             contentAlignment = Alignment.CenterStart
         ) {
             Row(
@@ -207,7 +210,7 @@ fun UserProfileContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .background(Color(0xFF6ABF69)), // Verde più scuro
+                .background(darkGreen), // Verde più scuro
             contentAlignment = Alignment.Center
         ) {
             Text(text = "Navigation Bar", color = Color.White)
