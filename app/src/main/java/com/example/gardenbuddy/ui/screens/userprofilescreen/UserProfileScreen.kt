@@ -1,18 +1,27 @@
 package com.example.gardenbuddy.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gardenbuddy.R
 import com.example.gardenbuddy.data.models.User
-import com.example.gardenbuddy.utils.toDateOrNull
-import java.util.Date
+import com.example.gardenbuddy.utils.toFormattedString
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Composable
 fun UserProfileScreen(
@@ -39,64 +48,185 @@ fun UserProfileScreen(
             name = user.name
             email = user.email
             weight = user.weight.toString()
-            birthDate = user.birthdate.toString()
+            birthDate = user.birthdate?.toFormattedString().toString()// Formatta la data
         }
     }
 
-    Column(modifier = Modifier) {
-        Text(text = "User Profile")
+    UserProfileContent(
+        userId = userId,
+        name = name,
+        onNameChange = { name = it },
+        email = email,
+        weight = weight,
+        onWeightChange = { weight = it },
+        birthDate = birthDate,
+        onBirthDateChange = { birthDate = it }
+    )
+}
 
-        // Mostra eventuali errori
-        if (errorMessage.isNotEmpty()) {
-            Text(text = "Error: $errorMessage")
+@Composable
+fun UserProfileContent(
+    userId: String,
+    name: String,
+    onNameChange: (String) -> Unit,
+    email: String,
+    weight: String,
+    onWeightChange: (String) -> Unit,
+    birthDate: String,
+    onBirthDateChange: (String) -> Unit,
+    viewModel: UserProfileScreenViewModel = viewModel()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFB2D8B2)) // Verde tenue
+    ) {
+        // Barra in alto
+        // Barra in alto con pulsante Salva
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .background(Color(0xFF6ABF69)), // Verde più scuro
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "User Profile",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White
+                )
+
+                // Pulsante Salva
+                TextButton(onClick = { viewModel.updateUserProfile(User(userId = userId, name = name, weight = weight.toDouble(), email = email, birthdate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(birthDate))) }) {
+                    Text(
+                        text = "Salva",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
         }
 
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Name") }
-        )
+        // Contenuto del profilo
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Immagine del profilo (luna)
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .background(Color.Gray)
+                    .clickable {
+                        // Aggiungi azione per selezionare l'immagine
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground), // Placeholder
+                    contentDescription = "Profile Image",
+                    contentScale = ContentScale.Crop
+                )
+            }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            enabled = false // se non vuoi che l'utente modifichi l'email
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = weight,
-            onValueChange = { weight = it },
-            label = { Text("Weight") }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = birthDate,
-            onValueChange = { birthDate = it },
-            label = { Text("BirthDate") }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            val currentUserId = userState?.userId ?: return@Button
-            // Crea un oggetto user da salvare
-            val updatedUser = User(
-                userId = currentUserId,
-                name = name,
-                email = email,
-                weight = weight.toDoubleOrNull() ?: 0.0,
-                birthdate = birthDate.toDateOrNull() ?: Date()
+            // Nome
+            OutlinedTextField(
+                value = name,
+                onValueChange = onNameChange,
+                label = { Text("Nome") }
             )
-            viewModel.updateUserProfile(updatedUser)
-        }) {
-            Text("Save Changes")
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Email (non modificabile)
+            OutlinedTextField(
+                value = email,
+                onValueChange = {},
+                label = { Text("Email") },
+                enabled = false // Disabilitato
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Peso
+            OutlinedTextField(
+                value = weight,
+                onValueChange = onWeightChange,
+                label = { Text("Peso (kg)") }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Compleanno
+            OutlinedTextField(
+                value = birthDate,
+                onValueChange = onBirthDateChange,
+                label = { Text("Compleanno (gg/mm/aaaa)") }
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Spazio per Milestones
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Milestones")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Spazio per Attività
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Le tue attività")
+            }
+        }
+
+        // Navigation Bar (Placeholder)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .background(Color(0xFF6ABF69)), // Verde più scuro
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "Navigation Bar", color = Color.White)
         }
     }
+}
+
+//test UI
+@Preview(showBackground = true)
+@Composable
+fun UserProfileScreenPreview() {
+    UserProfileContent(
+        userId = "123",
+        name = "Mario Rossi",
+        onNameChange = {},
+        email = "mario.rossi@example.com",
+        weight = "75",
+        onWeightChange = {},
+        birthDate = "15/04/1985",
+        onBirthDateChange = {}
+    )
 }

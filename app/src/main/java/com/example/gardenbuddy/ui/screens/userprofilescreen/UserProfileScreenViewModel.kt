@@ -1,5 +1,6 @@
 package com.example.gardenbuddy.ui.screens
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gardenbuddy.data.models.User
@@ -28,10 +29,14 @@ class UserProfileScreenViewModel : ViewModel() {
     }
 
     fun updateUserProfile(user: User) {
+        Log.d("UserProfileViewModel", "updateUserProfile called with user: $user")
         viewModelScope.launch {
             val result = AuthRepository.updateUserProfile(user)
-            result.onFailure { error ->
+            result.onSuccess {
+                Log.d("UserProfileViewModel", "User profile updated successfully")
+            }.onFailure { error ->
                 _errorMessage.value = error.message ?: "An error occurred while updating user"
+                Log.e("UserProfileViewModel", "Error updating user profile", error)
             }
         }
     }
