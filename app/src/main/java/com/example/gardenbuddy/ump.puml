@@ -12,8 +12,12 @@ package "data" {
     }
 
     class PlantRecognitionService {
-      + recognizePlant(photo : Bitmap) : PlantInfo
+      + recognizePlant(photo : Bitmap) : String
     }
+
+    class PlantInformationService {
+          + getInfoByName(name : String) : List<String>
+        }
   }
 
   package "models" {
@@ -24,7 +28,7 @@ package "data" {
       - longitude : Double
       - dimension : Double
       - photos : List<String>
-      - plants : List<Plant>  ' Facoltativo: se prevedi di modellare anche la classe Plant
+      - plants : List<Plant>
       --
       + getId() : String
       + getName() : String
@@ -35,15 +39,21 @@ package "data" {
       + getPlants() : List<Plant>
     }
 
-    ' Classe opzionale, se vuoi mantenere la definizione di piante separate
     class Plant {
-      - plantId : String
-      - plantName : String
-      - plantType : String
+      - plantId : Long
+      - scientificName : String
+      - species : String
+      - family : String
+      - parent : String
+      - kingdom : String
       --
-      + getPlantId() : String
-      + getPlantName() : String
-      + getPlantType() : String
+      + getPlantId() : Long
+      + getScientificName() : String
+      + getSpecies() : String
+      + getFamily() : String
+      + getParent() : String
+      + getKingdom() : String
+
     }
 
     class User {
@@ -66,11 +76,13 @@ package "data" {
       - humidity : Double
       - windSpeed : Double
       - description : String
+      - value : String
       --
       + getTemperature() : Double
       + getHumidity() : Double
       + getWindSpeed() : Double
       + getDescription() : String
+      + getValue() : String
     }
   }
 
@@ -85,6 +97,11 @@ package "data" {
 
     class WeatherRepository {
       + fetchWeatherData(location : String) : WeatherData
+    }
+
+    class PlantRepository {
+      + fetchPlantData(photo : Bitmap) : Plant
+      + fetchPlantData(name : String) : Plant
     }
 
     class AuthRepository {
@@ -113,6 +130,17 @@ package "ui" {
       + loadGarden(gardenId : String)
       + saveGarden(garden : Garden)
       + deleteGarden(gardenId : String)
+      + removePlant(plantId : Long)
+      + addPlant(plantId : Long)
+    }
+
+    class PlantScreen {
+      + showPlant(PlantId : Long)
+    }
+    class PlantScreenViewModel {
+      + loadPlant(PlantId : Long)
+      + searchPlant(photo : Bitmap)
+      + searchPlant(name : String)
     }
 
     class HomeScreen {
@@ -165,14 +193,16 @@ ActivityBoardScreenViewModel --> GardenRepository : uses
 GardenScreenViewModel --> GardenRepository : uses
 HomeScreenViewModel --> WeatherRepository : uses
 UserProfileScreenViewModel --> AuthRepository : uses
+PlantScreenViewModel --> PlantRepository : uses
 
 ' ------------------ Esempio di relazioni tra Repository e Service --------------------
 GardenRepository --> FirebaseInitializer : uses (CRUD gardens)
 AuthRepository --> FirebaseInitializer : uses (login/registration)
 WeatherRepository --> OpenWeatherMapService : uses
+PlantRepository --> PlantRecognitionService : uses
+PlantRepository --> PlantInformationService : uses
 
-' (Facoltativo) se vuoi mostrare l'uso del riconoscimento piante
-GardenRepository --> PlantRecognitionService : uses
+GardenRepository --> PlantInformationService : uses
 
 ' ------------------ Esempio di relazioni con SensorUtils (GPS/Accelerometro) ---------
 SensorUtils -[hidden]--> HomeScreenViewModel
@@ -184,6 +214,7 @@ ActivityBoardScreen --> ActivityBoardScreenViewModel : observes
 GardenScreen --> GardenScreenViewModel : observes
 HomeScreen --> HomeScreenViewModel : observes
 UserProfileScreen --> UserProfileScreenViewModel : observes
+PlantScreen --> PlantScreenViewModel : observes
 
 ' MainActivity come entry point generale (navigator verso le varie screen)
 MainActivity --> HomeScreen
