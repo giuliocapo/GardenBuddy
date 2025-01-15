@@ -7,3 +7,4 @@ data class WeatherInfo(
     val description: String = "",
     val location: String = ""
 )
+
