@@ -22,20 +22,19 @@ package "data" {
 
   package "models" {
     class Garden {
-      - id : String
+      - id : Long
       - name : String
       - latitude : Double
       - longitude : Double
       - dimension : Double
-      - photos : List<String>
-      - plants : List<Plant>
+      - photos : List<Bitmap>
       --
       + getId() : String
       + getName() : String
       + getLatitude() : Double
       + getLongitude() : Double
       + getDimension() : Double
-      + getPhotos() : List<String>
+      + getPhotos() : List<Bitmap>
       + getPlants() : List<Plant>
     }
 
@@ -54,6 +53,16 @@ package "data" {
       + getParent() : String
       + getKingdom() : String
 
+    }
+
+    class GardenPlant {
+      - photos : List<Bitmap>
+      - gardenId : Long
+      - plantId : Long
+      --
+      + getPhotos() : List<String>
+      + getPlantId() : Long
+      + getGardenId() : Long
     }
 
     class User {
@@ -88,11 +97,11 @@ package "data" {
 
   package "repositories" {
     class GardenRepository {
+
+      + loadGarden(gardenId : Long) : Garden
+      + saveGarden(garden : Garden) : Garden
+      + deleteGarden(gardenId : Long) : String
       + getAllGardens() : List<Garden>
-      + getGardenById(id : String) : Garden
-      + insertGarden(garden : Garden)
-      + updateGarden(garden : Garden)
-      + deleteGarden(id : String)
     }
 
     class WeatherRepository {
@@ -102,6 +111,14 @@ package "data" {
     class PlantRepository {
       + fetchPlantData(photo : Bitmap) : Plant
       + fetchPlantData(name : String) : Plant
+    }
+
+    class GardenPlantRepository {
+      + loadGardenPlant(PlantId : Long, GardenId : Long) : Pair<Plant, List<Bitmap>>
+      + removePlant(plantId : Long, gardenId : Long) : String
+      + addPlant(plantId : Long, gardenId : Long, photos : List<Bitmap>) : GardenPlant
+      + loadGardenPlants(gardenId : Long) : Result<List<Pair<Plant, List<Bitmap>>>>
+      + removeAllPlants(gardenId : Long) : Result<String>
     }
 
     class AuthRepository {
@@ -124,14 +141,15 @@ package "ui" {
     }
 
     class GardenScreen {
-      + showGarden(gardenId : String)
+      + showGarden(gardenId : Long)
     }
     class GardenScreenViewModel {
-      + loadGarden(gardenId : String)
+      + loadGarden(gardenId : Long)
       + saveGarden(garden : Garden)
-      + deleteGarden(gardenId : String)
+      + deleteGarden(gardenId : Long)
       + removePlant(plantId : Long)
-      + addPlant(plantId : Long)
+      + addPlant(plantId : Long, gardenId : Long, photos : List<Bitmap>)
+      + loadGardenPlants(gardenId : Long)
     }
 
     class PlantScreen {
@@ -142,6 +160,11 @@ package "ui" {
       + searchPlant(photo : Bitmap)
       + searchPlant(name : String)
     }
+
+    class GardenPlantScreen {
+          + showGardenPlant(PlantId : Long, GardenId : Long)
+    }
+
 
     class HomeScreen {
       + showHome()
@@ -190,7 +213,10 @@ class MainActivity {
 
 ' ------------------ Esempio di relazioni tra ViewModel e Repository ------------------
 ActivityBoardScreenViewModel --> GardenRepository : uses
+GardenScreenViewModel --> GardenPlantRepository : uses
+
 GardenScreenViewModel --> GardenRepository : uses
+
 HomeScreenViewModel --> WeatherRepository : uses
 UserProfileScreenViewModel --> AuthRepository : uses
 PlantScreenViewModel --> PlantRepository : uses
@@ -201,6 +227,8 @@ AuthRepository --> FirebaseInitializer : uses (login/registration)
 WeatherRepository --> OpenWeatherMapService : uses
 PlantRepository --> PlantRecognitionService : uses
 PlantRepository --> PlantInformationService : uses
+
+GardenPlantRepository --> PlantRepository : uses
 
 GardenRepository --> PlantInformationService : uses
 
@@ -215,7 +243,7 @@ GardenScreen --> GardenScreenViewModel : observes
 HomeScreen --> HomeScreenViewModel : observes
 UserProfileScreen --> UserProfileScreenViewModel : observes
 PlantScreen --> PlantScreenViewModel : observes
-
+GardenPlantScreen --> GardenScreenViewModel : observes
 ' MainActivity come entry point generale (navigator verso le varie screen)
 MainActivity --> HomeScreen
 

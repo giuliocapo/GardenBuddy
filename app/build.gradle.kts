@@ -17,7 +17,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
+        android.buildFeatures.buildConfig = true
         val apiKeyPlant: String = project.findProperty("apiKeyPlant") as String? ?: ""
         buildConfigField("String", "API_KEY_PLANT", "\"$apiKeyPlant\"")
     }
@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.firebase.common.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
