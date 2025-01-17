@@ -30,7 +30,8 @@ class MainActivity : ComponentActivity() {
         FirebaseInitializer.init(this)
 
         setContent {
-            GardenBuddyTheme {
+            // Usa darkTheme = false se desideri il tema chiaro
+            GardenBuddyTheme(darkTheme = true) {
                 AppScaffold()
             }
         }

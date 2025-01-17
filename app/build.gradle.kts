@@ -20,6 +20,7 @@ android {
         android.buildFeatures.buildConfig = true
         val apiKeyPlant: String = project.findProperty("apiKeyPlant") as String? ?: ""
         buildConfigField("String", "API_KEY_PLANT", "\"$apiKeyPlant\"")
+        android.buildFeatures.buildConfig = true
     }
 
     buildTypes {

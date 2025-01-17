@@ -39,8 +39,8 @@ fun WeatherCard(
         ) {
             Column(modifier = modifier.weight(1f)){
                 //AnimatedSunWithClouds(modifier)
-                //SunIcon(modifier)
-                CloudsAndRainIcon()
+                SunIcon(modifier)
+                //CloudsAndRainIcon()
             }
 
             // Sezione Informazioni Meteo
