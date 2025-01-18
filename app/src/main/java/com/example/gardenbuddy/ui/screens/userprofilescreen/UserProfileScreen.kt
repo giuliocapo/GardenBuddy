@@ -26,12 +26,18 @@ import java.util.*
 import android.util.Log
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.example.gardenbuddy.ui.screens.homescreen.BottomNavigationBar
 
 @Composable
 fun UserProfileScreen(
-    userId: String,
+    navController: NavHostController,
+    sharedUserViewModel: SharedUserViewModel,
     viewModel: UserProfileScreenViewModel = viewModel()
 ) {
+    val selectedTab = remember { mutableStateOf("userProfile") }
+    val userId = sharedUserViewModel.user.value?.userId ?: ""
     // Carica i dati dell'utente al primo avvio di questa schermata
     LaunchedEffect(userId) {
         viewModel.loadUserProfile(userId)
@@ -70,6 +76,12 @@ fun UserProfileScreen(
                 onBirthDateChange = { birthDate = it },
                 modifier = Modifier.padding(innerPadding)
             )
+        },
+
+        bottomBar = {
+            BottomNavigationBar(navController = navController, selectedTab = selectedTab.value) {
+                selectedTab.value = it
+            }
         }
     )
 }
