@@ -29,9 +29,10 @@ import androidx.compose.ui.graphics.Color
 
 @Composable
 fun UserProfileScreen(
-    userId: String,
+    sharedUserViewModel: SharedUserViewModel,
     viewModel: UserProfileScreenViewModel = viewModel()
 ) {
+    val userId = sharedUserViewModel.user.value?.userId ?: ""
     // Carica i dati dell'utente al primo avvio di questa schermata
     LaunchedEffect(userId) {
         viewModel.loadUserProfile(userId)

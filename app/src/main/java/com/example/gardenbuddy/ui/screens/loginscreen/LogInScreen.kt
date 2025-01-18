@@ -1,4 +1,4 @@
-package com.example.gardenbuddy.ui.screens
+package com.example.gardenbuddy.ui.screens.loginscreen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.gardenbuddy.ui.screens.LogInScreenViewModel
+import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 
 @Composable
 fun LogInScreen(
     navController: NavController,
-    logInViewModel: LogInScreenViewModel = viewModel()
+    logInViewModel: LogInScreenViewModel = viewModel(),
+    sharedUserViewModel : SharedUserViewModel
 ) {
     val errorMessage by logInViewModel.errorMessage.collectAsState()
     val isLoading by logInViewModel.isLoading.collectAsState()
@@ -24,7 +27,8 @@ fun LogInScreen(
     // Se login ha successo, navighiamo al profilo
     LaunchedEffect(logInSuccess) {
         logInSuccess?.let { user ->
-            navController.navigate("userProfile/${user.userId}") {
+            sharedUserViewModel.setUser(user)
+            navController.navigate("home") {
                 // Rimuove LogInScreen dallo stack
                 popUpTo("logIn") { inclusive = true }
             }
@@ -35,7 +39,7 @@ fun LogInScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    Column {
+    Column() {
         Text(text = "Log In")
 
         OutlinedTextField(
@@ -75,3 +79,4 @@ fun LogInScreen(
         }
     }
 }
+
