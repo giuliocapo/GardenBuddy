@@ -1,6 +1,7 @@
 package com.example.gardenbuddy.ui.screens.homescreen
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.rounded.Home
@@ -13,12 +14,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.res.painterResource
+import com.example.gardenbuddy.R
 
 
 @Composable
@@ -41,11 +43,12 @@ fun BottomNavigationBar(
                     restoreState = true
                 }
             },
-            icon = { Icon(Icons.Rounded.Home, contentDescription = "Home") },
+            icon = { Icon(Icons.Rounded.Home, contentDescription = "Home", Modifier.size(32.dp)) },
             label = { Text("Home") }
         )
         NavigationBarItem(
             selected = selectedTab == "garden",
+
             onClick = {
                 onTabSelected("garden")
                 navController.navigate("garden") {
@@ -54,7 +57,7 @@ fun BottomNavigationBar(
                     restoreState = true
                 }
             },
-            icon = { Icon(Icons.Rounded.Star, contentDescription = "Garden") },
+            icon = { Icon(painterResource(id = R.drawable.ic_garden), contentDescription = "Garden", Modifier.size(32.dp)) },
             label = { Text("Garden") }
         )
         NavigationBarItem(
@@ -67,31 +70,21 @@ fun BottomNavigationBar(
                     restoreState = true
                 }
             },
-            icon = { Icon(Icons.Filled.Info, contentDescription = "Social") },
+            icon = { Icon(painterResource(id = R.drawable.ic_social), contentDescription = "Social", Modifier.size(32.dp)) },
             label = { Text("Social") }
         )
         NavigationBarItem(
-            selected = selectedTab == "profile",
+            selected = selectedTab == "userProfile",
             onClick = {
-                onTabSelected("profile")
-                navController.navigate("profile") {
+                onTabSelected("userProfile")
+                navController.navigate("userProfile") {
                     popUpTo(navController.graph.startDestinationId) { saveState = true }
                     launchSingleTop = true
                     restoreState = true
                 }
             },
-            icon = { Icon(Icons.Rounded.Person, contentDescription = "Profile") },
+            icon = { Icon(Icons.Rounded.Person, contentDescription = "Profile", Modifier.size(32.dp)) },
             label = { Text("Profile") }
         )
-    }
-}
-
-@Composable
-fun NavigationHost(navController: NavHostController, modifier: Modifier) {
-    NavHost(navController = navController, startDestination = "home", modifier = modifier) {
-        composable("home") { Text("Home Screen", modifier = Modifier.padding(16.dp)) }
-        composable("garden") { Text("Garden Screen", modifier = Modifier.padding(16.dp)) }
-        composable("social") { Text("Social Screen", modifier = Modifier.padding(16.dp)) }
-        composable("profile") { Text("Profile Screen", modifier = Modifier.padding(16.dp)) }
     }
 }

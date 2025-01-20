@@ -14,16 +14,20 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = darkGreen,           // Usa darkGreen come colore primario
-    onPrimary = Color.White,       // Colore del testo/icon per contrasto sul colore primario
-    secondary = Color(0xFF03DAC6), // Puoi personalizzare ulteriori colori
-    tertiary = Color(0xFF018786)   // Puoi personalizzare ulteriori colori
+    onPrimary = Color.Black,       // Colore del testo/icon per contrasto sul colore primario
+    secondary = Color.Red, // Puoi personalizzare ulteriori colori
+    tertiary = Color.Red ,  // Puoi personalizzare ulteriori colori
+    background = Color.White,
+    surface = darkGreen
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = softGreen,           // Usa softGreen come colore primario
-    onPrimary = Color.Black,       // Colore del testo/icon per contrasto sul colore primario
-    secondary = Color(0xFF03DAC6), // Puoi personalizzare ulteriori colori
-    tertiary = Color(0xFF018786)   // Puoi personalizzare ulteriori colori
+    primary = softGreen,           // Usa darkGreen come colore primario
+    onPrimary = Color.White,       // Colore del testo/icon per contrasto sul colore primario
+    secondary = Color.Red, // Puoi personalizzare ulteriori colori
+    tertiary = Color.Red ,  // Puoi personalizzare ulteriori colori
+    background = softGreen,
+    surface = softGreen
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

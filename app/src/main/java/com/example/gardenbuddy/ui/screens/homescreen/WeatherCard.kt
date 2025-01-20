@@ -25,7 +25,7 @@ fun WeatherCard(
 
     Card(
         modifier = modifier
-            .padding(32.dp, 16.dp)
+            .padding(16.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = androidx.compose.material3.CardDefaults.cardColors(
@@ -38,9 +38,9 @@ fun WeatherCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = modifier.weight(1f)){
-                //AnimatedSunWithClouds(modifier)
-                //SunIcon(modifier)
-                CloudsAndRainIcon()
+//                AnimatedSunWithClouds(modifier)
+              SunIcon(modifier)
+                //CloudsAndRainIcon()
             }
 
             // Sezione Informazioni Meteo
@@ -60,6 +60,7 @@ fun WeatherCard(
                     color = Color.Blue,
                     textAlign = TextAlign.Start
                 )
+
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = summary,
