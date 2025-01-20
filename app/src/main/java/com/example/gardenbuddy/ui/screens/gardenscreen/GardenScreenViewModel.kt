@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 
-class PlantScreenViewModel : ViewModel() {
+class GardenScreenViewModel : ViewModel() {
 
     private val _errorMessage = MutableStateFlow("")
     val errorMessage = _errorMessage.asStateFlow()
@@ -25,8 +25,15 @@ class PlantScreenViewModel : ViewModel() {
     private val _gardenplantsLoadSuccess = MutableStateFlow<List<Pair<Plant, List<Bitmap>>>?>(null)
     val gardenplantsLoadSuccess = _gardenplantsLoadSuccess.asStateFlow()
 
+    private val _gardenplantLoadSuccess = MutableStateFlow<Pair<Plant, List<Bitmap>>?>(null)
+    val gardenplantLoadSuccess = _gardenplantLoadSuccess.asStateFlow()
+
+
     private val _gardenLoadSuccess = MutableStateFlow<Garden?>(null)
     val gardenLoadSuccess = _gardenLoadSuccess.asStateFlow()
+
+    private val _gardensLoadSuccess = MutableStateFlow<List<Garden>?>(null)
+    val gardensLoadSuccess = _gardensLoadSuccess.asStateFlow()
 
     private val _gardenSaveSuccess = MutableStateFlow<Garden?>(null)
     val gardenSaveSuccess = _gardenSaveSuccess.asStateFlow()
@@ -50,6 +57,34 @@ class PlantScreenViewModel : ViewModel() {
 
             result.onSuccess { List ->
                 _gardenplantsLoadSuccess.value = List
+                _isLoading.value = false
+            }.onFailure { error ->
+                _errorMessage.value = error.message ?: "An error occurred"
+            }
+        }
+    }
+
+    fun loadGardenPlant(plantId: Long, gardenId: Long){
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = GardenPlantRepository.loadGardenPlant(plantId, gardenId)
+
+            result.onSuccess { plant ->
+                _gardenplantLoadSuccess.value = plant
+                _isLoading.value = false
+            }.onFailure { error ->
+                _errorMessage.value = error.message ?: "An error occurred"
+            }
+        }
+    }
+
+    fun  removeAllPlants(gardenId : Long){
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = GardenPlantRepository.removeAllPlants(gardenId)
+
+            result.onSuccess { result ->
+                _plantRemoveSuccess.value = result
                 _isLoading.value = false
             }.onFailure { error ->
                 _errorMessage.value = error.message ?: "An error occurred"
@@ -119,6 +154,19 @@ class PlantScreenViewModel : ViewModel() {
             }.onFailure { error ->
                 _errorMessage.value = error.message ?: "An error occurred"
 
+            }
+        }
+    }
+
+    fun loadGardens(userId : Long){
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = GardenRepository.getAllGardens(userId)
+            result.onSuccess { gardens ->
+                _gardensLoadSuccess.value = gardens
+                _isLoading.value = false
+            }.onFailure { error ->
+                _errorMessage.value = error.message ?: "An error occurred"
             }
         }
     }

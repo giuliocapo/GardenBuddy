@@ -20,6 +20,11 @@ class PlantScreenViewModel : ViewModel() {
     private val _plantLoadSuccess = MutableStateFlow<Plant?>(null)
     val plantLoadSuccess = _plantLoadSuccess.asStateFlow()
 
+    private val _plantSearchSuccess = MutableStateFlow<List<Plant>?>(null)
+    val plantSearchSuccess = _plantSearchSuccess.asStateFlow()
+
+
+
     // implement this stuffs in the repository file
 
     fun loadPlant(PlantId : Long){
@@ -41,10 +46,32 @@ class PlantScreenViewModel : ViewModel() {
     // there isn't the add, because is handled automatically in the BE
 
     fun searchPlant(photo : Bitmap){
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = PlantRepository.searchPlant(photo)
+            _isLoading.value = false
+
+            result.onSuccess { plant ->
+                _plantSearchSuccess.value = plant
+            }.onFailure { error ->
+                _errorMessage.value = error.localizedMessage ?: "Unknown error"
+            }
+        }
 
     }
 
     fun searchPlant(name : String){
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = PlantRepository.searchPlant(name)
+            _isLoading.value = false
+
+            result.onSuccess { plant ->
+                _plantSearchSuccess.value = plant
+            }.onFailure { error ->
+                _errorMessage.value = error.localizedMessage ?: "Unknown error"
+            }
+        }
 
     }
 

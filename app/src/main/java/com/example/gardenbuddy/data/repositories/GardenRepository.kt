@@ -43,7 +43,7 @@ object GardenRepository {
 
 
 
-    suspend fun getAllGardens() : Result<List<Garden>> {
+    suspend fun getAllGardens(userId : Long) : Result<List<Garden>> {
         // TODO implement
         return Result.success(emptyList())
     }

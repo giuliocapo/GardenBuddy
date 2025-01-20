@@ -33,11 +33,40 @@ object PlantRepository {
         }
     }
 
-    suspend fun searchPlant(photo : Bitmap){
+    suspend fun searchPlant(photo : Bitmap) : Result<List<Plant>>{
+        //TODO chiamata api
+
+        return Result.success(emptyList())
 
     }
 
-    suspend fun searchPlant(name : String){
+    suspend fun searchPlant(name : String) : Result<List<Plant>>{
+        //TODO chiamata api
+
+        return try {
+
+            // intanto è così, aspettando su come fare il BE
+            val result = """
+            {
+                "plantId": "${1234}",
+                "scientificName": "Leucanthemum vulgare",
+                "species": "Leucanthemum vulgare",
+                "family": "Asteraceae",
+                "parent": "Leucanthemum",
+                "kingdom": "Plantae"
+            }
+            """.trimIndent()
+
+            val plant: Plant = Json.decodeFromString(result)
+            //plant.plantId = PlantId
+            val plants = listOf(plant)
+
+            Result.success(plants)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+        //return Result.success(emptyList())
 
     }
 
