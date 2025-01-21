@@ -22,7 +22,6 @@ import com.example.gardenbuddy.ui.screens.SignUpScreen
 import com.example.gardenbuddy.ui.screens.UserProfileScreen
 import com.example.gardenbuddy.ui.screens.activityboardscreen.ActivityBoardScreen
 import com.example.gardenbuddy.ui.screens.homescreen.HomeScreen
-import com.example.gardenbuddy.ui.screens.plantScreen.PlantScreen
 import com.example.gardenbuddy.ui.screens.plantScreen.PlantSearchSection
 import com.example.gardenbuddy.ui.theme.GardenBuddyTheme
 import com.example.gardenbuddy.utils.FirebaseInitializer
