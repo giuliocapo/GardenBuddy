@@ -80,4 +80,13 @@ dependencies {
     implementation(libs.firebase.firestore) // Firestore Database
     implementation(libs.firebase.auth) // Firebase Authentication
     implementation(libs.firebase.database) // Realtime Database
+
+    // Retrofit library
+    implementation(libs.retrofit)
+
+    // Gson Converter (to parse JSON)
+    implementation(libs.converter.gson)
+
+    // Optional: OkHttp for logging (useful for debugging network requests)
+    implementation(libs.logging.interceptor)
 }
