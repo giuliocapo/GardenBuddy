@@ -13,12 +13,13 @@ object GardenRepository {
             // intanto è così, aspettando su come fare il BE
             val result = """
             {
-                "id": "${gardenId}",
+                "id": "${1234}",
                 "name": "eden",
                 "latitude": 123.123,
                 "longitude": 456.456,
                 "dimension": 100,
-                "photos": []
+                "photos": [],
+                "user_id": 1
             }
             """.trimIndent()
 
@@ -45,7 +46,9 @@ object GardenRepository {
 
     suspend fun getAllGardens(userId : Long) : Result<List<Garden>> {
         // TODO implement
-        return Result.success(emptyList())
+        val gardens = listOf(GardenRepository.loadGarden(1234).getOrThrow())
+        if(gardens.isEmpty()) return Result.failure(Exception("No gardens found"))
+        return Result.success(gardens)
     }
 
 }

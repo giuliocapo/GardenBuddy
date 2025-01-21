@@ -3,9 +3,10 @@ package com.example.gardenbuddy.data.repositories
 import android.graphics.Bitmap
 import com.example.gardenbuddy.data.models.GardenPlant
 import com.example.gardenbuddy.data.models.Plant
+import com.example.gardenbuddy.data.models.convertBitmapsToByteArrays
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-
+import java.io.ByteArrayOutputStream
 
 
 object GardenPlantRepository {
@@ -91,7 +92,11 @@ object GardenPlantRepository {
 
     suspend fun addPlant(plantId : Long, gardenId : Long, photos : List<Bitmap>) : Result<GardenPlant> {
         // TODO implement the save on the PlantGarden
-        return Result.success(GardenPlant(photos, gardenId, plantId))
+        return Result.success(GardenPlant(convertBitmapsToByteArrays(photos), gardenId, plantId))
     }
+
+
+
+
 
 }

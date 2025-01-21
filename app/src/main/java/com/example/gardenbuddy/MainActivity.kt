@@ -13,15 +13,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.gardenbuddy.ui.screens.loginscreen.LogInScreen
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 import com.example.gardenbuddy.ui.screens.SignUpScreen
 import com.example.gardenbuddy.ui.screens.UserProfileScreen
+import com.example.gardenbuddy.ui.screens.gardenscreen.GardenDetailsScreen
+import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreen
 import com.example.gardenbuddy.ui.screens.homescreen.HomeScreen
-import com.example.gardenbuddy.ui.screens.plantScreen.PlantScreen
 import com.example.gardenbuddy.ui.theme.GardenBuddyTheme
 import com.example.gardenbuddy.utils.FirebaseInitializer
 
@@ -77,11 +80,22 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
             UserProfileScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
         }
         composable("garden") {
-            PlantScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
+            GardenScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
             Text("Garden screen")
         }
         composable("social") {
             Text("Social screen")
+        }
+        composable(
+            "garden_details/{gardenId}",
+            arguments = listOf(navArgument("gardenId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val gardenId = backStackEntry.arguments?.getLong("gardenId") ?: 0L
+            GardenDetailsScreen(
+                navController = navController,
+                gardenId = gardenId,
+                sharedUserViewModel = sharedUserViewModel
+            )
         }
     }
 }

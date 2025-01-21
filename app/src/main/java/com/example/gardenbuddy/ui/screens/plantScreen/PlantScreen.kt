@@ -2,6 +2,7 @@ package com.example.gardenbuddy.ui.screens.plantScreen
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,30 +37,20 @@ import androidx.navigation.NavController
 import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 
-
 @Composable
-fun PlantScreen (
-    navController: NavController,
-    sharedUserViewModel: SharedUserViewModel,
-    plantScreenViewModel: PlantScreenViewModel = viewModel()
-){
-    val errorMessage by plantScreenViewModel.errorMessage.collectAsState()
-    val isLoading by plantScreenViewModel.isLoading.collectAsState()
-    val plantSearchSuccess by plantScreenViewModel.plantSearchSuccess.collectAsState()
+fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel) {
     var searchQuery by remember { mutableStateOf("") }
-    val context = LocalContext.current
+    val plantSearchSuccess by plantScreenViewModel.plantSearchSuccess.collectAsState()
+    val isLoading by plantScreenViewModel.isLoading.collectAsState()
+    val errorMessage by plantScreenViewModel.errorMessage.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Search Bar
+
+
+    Column {
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             label = { Text("Search by Name") },
-            modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
                 IconButton(onClick = {
                     if (searchQuery.isNotBlank()) {
@@ -68,43 +59,20 @@ fun PlantScreen (
                 }) {
                     Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
                 }
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Camera Button
-        Button(
-            onClick = {
-                // Mock implementation for opening the camera
-                openCamera(context) { bitmap ->
-                    plantScreenViewModel.searchPlant(bitmap)
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Search by Photo")
+        if (errorMessage.isNotEmpty()) {
+            Text(text = "Error: $errorMessage")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Search Results or Error Message
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else {
-            when {
-                plantSearchSuccess != null -> {
-                    Text(text = "Search Result:", style = MaterialTheme.typography.titleMedium)
-                    PlantCardContent(plantSearchSuccess!!.first())
-                }
-
-                errorMessage.isNotBlank() -> {
-                    Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
-                }
-
-                else -> {
-                    Text(text = "No results found.", style = MaterialTheme.typography.bodyMedium)
-                }
+            plantSearchSuccess?.let { plant ->
+                PlantCardContent(plant = plant.first())
             }
         }
     }
@@ -120,17 +88,9 @@ fun PlantCardContent(plant: Plant) {
         shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Plant Name: ${plant.scientificName}", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "Plant Name: ${plant.scientificName}", style = MaterialTheme.typography.titleMedium)
             Text(text = "Species: ${plant.species}", style = MaterialTheme.typography.bodySmall)
-            Text(text = "ID: ${plant.plantId}", style = MaterialTheme.typography.bodySmall)
-            Text(text = "Parent: ${plant.parent}", style = MaterialTheme.typography.bodySmall)
-            Text(text = "Kingdom: ${plant.kingdom}", style = MaterialTheme.typography.bodySmall)
+            Text(text = "Family: ${plant.family}", style = MaterialTheme.typography.bodySmall)
         }
     }
-}
-
-fun openCamera(context: Context, onImageCaptured: (Bitmap) -> Unit) {
-    // Simulating opening a camera, capturing an image, and returning it as a Bitmap
-    val bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888) // Replace with real camera capture logic
-    onImageCaptured(bitmap)
 }
