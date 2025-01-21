@@ -64,7 +64,7 @@ fun GardenDetailsScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Plant Search Section
-        PlantSearchSection(plantScreenViewModel = plantScreenViewModel)
+        //PlantSearchSection(plantScreenViewModel = plantScreenViewModel)
 
         Spacer(modifier = Modifier.height(16.dp))
 

@@ -71,7 +71,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.okhttp) // OkHttp
+    //implementation(libs.okhttp) // OkHttp
 
     // Firebase BoM to manage consistent versions
     implementation(platform(libs.firebase.bom))
@@ -85,8 +85,7 @@ dependencies {
     implementation(libs.retrofit)
 
     // Gson Converter (to parse JSON)
-    implementation(libs.converter.gson)
+    implementation(libs.retrofit.converter.gson)
 
-    // Optional: OkHttp for logging (useful for debugging network requests)
-    implementation(libs.logging.interceptor)
+
 }
