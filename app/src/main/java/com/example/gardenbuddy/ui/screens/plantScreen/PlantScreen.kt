@@ -38,7 +38,7 @@ import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 
 @Composable
-fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel) {
+fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(), navController: NavController, sharedUserViewModel: SharedUserViewModel) {
     var searchQuery by remember { mutableStateOf("") }
     val plantSearchSuccess by plantScreenViewModel.plantSearchSuccess.collectAsState()
     val isLoading by plantScreenViewModel.isLoading.collectAsState()

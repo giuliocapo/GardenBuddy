@@ -1,5 +1,8 @@
 package com.example.gardenbuddy.data.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Activity(
     val id: String,
     val userId: String,

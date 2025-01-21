@@ -20,8 +20,10 @@ import com.example.gardenbuddy.ui.screens.loginscreen.LogInScreen
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 import com.example.gardenbuddy.ui.screens.SignUpScreen
 import com.example.gardenbuddy.ui.screens.UserProfileScreen
+import com.example.gardenbuddy.ui.screens.activityboardscreen.ActivityBoardScreen
 import com.example.gardenbuddy.ui.screens.homescreen.HomeScreen
 import com.example.gardenbuddy.ui.screens.plantScreen.PlantScreen
+import com.example.gardenbuddy.ui.screens.plantScreen.PlantSearchSection
 import com.example.gardenbuddy.ui.theme.GardenBuddyTheme
 import com.example.gardenbuddy.utils.FirebaseInitializer
 
@@ -77,10 +79,11 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
             UserProfileScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
         }
         composable("garden") {
-            PlantScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
+            PlantSearchSection(navController = navController, sharedUserViewModel = sharedUserViewModel)
             Text("Garden screen")
         }
         composable("social") {
+            ActivityBoardScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
             Text("Social screen")
         }
     }

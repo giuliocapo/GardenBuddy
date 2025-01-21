@@ -34,6 +34,7 @@ fun ActivityBoardScreen(
     // Stato per il tab selezionato nella barra di navigazione
     val selectedTab = remember { mutableStateOf("activityBoard") }
 
+    val userId = sharedUserViewModel.user.value?.userId ?: ""
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
@@ -92,6 +93,6 @@ fun ActivityCard(activity: Activity) {
 @Composable
 fun ActivityBoardScreenPreview() {
     GardenBuddyTheme {
-        ActivityBoardScreen(navController = rememberNavController())
+        ActivityBoardScreen(navController = rememberNavController(), sharedUserViewModel = SharedUserViewModel())
     }
 }
