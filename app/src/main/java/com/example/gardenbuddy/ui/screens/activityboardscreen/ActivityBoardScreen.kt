@@ -35,6 +35,12 @@ fun ActivityBoardScreen(
     val selectedTab = remember { mutableStateOf("activityBoard") }
 
     val userId = sharedUserViewModel.user.value?.userId ?: ""
+
+    // Chiamata a fetchActivities() quando la schermata viene creata
+    LaunchedEffect(Unit) { // con unit essendo void lanciamo l'effetto solo quando il composable entra nella composizione una volta
+        viewModel.fetchActivities()
+    }
+
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
@@ -91,8 +97,18 @@ fun ActivityCard(activity: Activity) {
 
 @Preview(showBackground = true)
 @Composable
-fun ActivityBoardScreenPreview() {
+fun ActivityCardPreview() {
     GardenBuddyTheme {
-        ActivityBoardScreen(navController = rememberNavController(), sharedUserViewModel = SharedUserViewModel())
+        // Mock activity data
+        val mockActivity = Activity(
+            id = "1",
+            userId = "user1",
+            username = "Alice",
+            minutes = 30,
+            steps = 5000,
+            calories = 200,
+            timestamp = System.currentTimeMillis()
+        )
+        ActivityCard(activity = mockActivity)
     }
 }

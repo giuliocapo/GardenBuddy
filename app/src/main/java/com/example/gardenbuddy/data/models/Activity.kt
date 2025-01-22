@@ -2,7 +2,7 @@ package com.example.gardenbuddy.data.models
 
 import kotlinx.serialization.Serializable
 
-@Serializable
+@Serializable // Utile per la serializzazione JSON
 data class Activity(
     val id: String,
     val userId: String,

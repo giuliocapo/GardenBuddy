@@ -1,5 +1,6 @@
 package com.example.gardenbuddy.ui.screens.activityboardscreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gardenbuddy.data.models.Activity
@@ -7,7 +8,10 @@ import com.example.gardenbuddy.data.repositories.ActivityBoardRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+
 class ActivityBoardViewModel : ViewModel() {
+
+    private val TAG = "ActivityBoardViewModel"
 
     // Stato delle attività (recuperate dal backend)
     private val _activities = MutableStateFlow<List<Activity>>(emptyList())
@@ -16,6 +20,10 @@ class ActivityBoardViewModel : ViewModel() {
     // Stato per la barra di ricerca
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> get() = _searchQuery
+
+    // Stato per messaggi di errore
+    private val _errorMessage = MutableStateFlow("")
+    val errorMessage: StateFlow<String> = _errorMessage
 
     // Stato filtrato combinando attività e query
     val filteredActivities = combine(activities, searchQuery) { activityList, query ->
@@ -36,20 +44,23 @@ class ActivityBoardViewModel : ViewModel() {
     fun fetchActivities() {
         viewModelScope.launch {
             try {
-                val fetchedActivities = ActivityBoardRepository.fetchActivities()
+                val fetchedActivities = ActivityBoardRepository.fetchAllActivities()
                 _activities.value = fetchedActivities
+                Log.d(TAG, "Fetched activities: $fetchedActivities")
             } catch (e: Exception) {
                 // Gestione dell'errore
                 e.printStackTrace()
+                _errorMessage.value = "Errore nel recupero delle attività: ${e.message}"
+                Log.e(TAG, "Error fetching activities", e)
             }
         }
     }
 
     // Aggiunge una nuova attività
-    fun addActivity(activity: Activity) {
+    fun addActivity(userId: String, activity: Activity) {
         viewModelScope.launch {
             try {
-                val newActivity = ActivityBoardRepository.addActivity(activity)
+                val newActivity = ActivityBoardRepository.addUserActivity(userId, activity)
                 _activities.value = _activities.value + newActivity // Aggiorna localmente
             } catch (e: Exception) {
                 // Gestione dell'errore
@@ -59,10 +70,10 @@ class ActivityBoardViewModel : ViewModel() {
     }
 
     // Elimina un'attività per ID
-    fun deleteActivity(activityId: String) {
+    fun deleteActivity(userId: String, activityId: String) {
         viewModelScope.launch {
             try {
-                ActivityBoardRepository.deleteActivity(activityId)
+                ActivityBoardRepository.deleteUserActivity(userId , activityId)
                 _activities.value = _activities.value.filter { it.id != activityId }
             } catch (e: Exception) {
                 // Gestione dell'errore
