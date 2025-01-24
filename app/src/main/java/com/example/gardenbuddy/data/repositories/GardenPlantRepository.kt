@@ -1,86 +1,106 @@
 package com.example.gardenbuddy.data.repositories
 
 import android.graphics.Bitmap
+import com.example.gardenbuddy.data.Dtos.requests.CreategardenplantDTO
 import com.example.gardenbuddy.data.models.GardenPlant
 import com.example.gardenbuddy.data.models.Plant
-import com.example.gardenbuddy.data.models.convertBitmapsToByteArrays
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import java.io.ByteArrayOutputStream
+import com.example.gardenbuddy.utils.RetrofitClient
+import com.example.gardenbuddy.utils.bitmapConverter
 
 
 object GardenPlantRepository {
 
-    /*private val _errorMessage = MutableStateFlow("")
-    val errorMessage = _errorMessage.asStateFlow()
 
 
-    private val _gardenplantLoadSuccess = MutableStateFlow<Pair<Plant, List<Bitmap>>?>(null)
-    val gardenplantLoadSuccess = _gardenplantLoadSuccess.asStateFlow()*/
-
-
-    suspend fun loadGardenPlant(PlantId: Long, GardenId: Long): Result<Pair<Plant, List<Bitmap>>> {
-        val result = PlantRepository.loadPlant(PlantId);
-
+    suspend fun loadGardenPlant(plantId: Long, gardenId: Long): Result<Pair<Plant, List<Bitmap>>> {
         return try {
-            var resultOutput: Result<Pair<Plant, List<Bitmap>>> = Result.failure(Exception("Unknown error"))
+            val response = RetrofitClient.gardenPlantApiService.getGardenPlantByGardenIdAndPlantId(gardenId, plantId)
+            if (response.isSuccessful) {
+                val gardenplant = response.body()
+                if (gardenplant != null) {
+                    val p_response = RetrofitClient.plantApiService.getPlantById(plantId)
+                    if (!p_response.isSuccessful) {
+                        return Result.failure(Exception("Plant data is null"))
+                    }
+                    val plant = p_response.body() ?: return Result.failure(Exception("Plant data is null"))
 
-            result.onSuccess { plant ->
-                val photos: List<Bitmap> = emptyList() // retrieve photos from the couple PlantId, GardenId in the GardenPlant db
-                val output = Pair(plant, photos)
-
-                resultOutput = Result.success(output)
-
-                //_gardenplantLoadSuccess.value = output
-            }.onFailure { error ->
-                throw Exception(error.localizedMessage ?: "Unknown error")
-                //_errorMessage.value = error.localizedMessage ?: "Unknown error"
+                    val photos = gardenplant.photos.map { bitmapConverter.base64StringToBitmap(it.toString(Charsets.UTF_8)) }
+                    Result.success(Pair(plant, photos))
+                } else {
+                    Result.failure(Exception("GardenPlant data is null"))
+                }
+            } else {
+                Result.failure(Exception(Exception("Error: ${response.body() ?: ""}")))
             }
-            resultOutput
-
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
     }
 
-    suspend fun loadGardenPlants(gardenId : Long) : Result<List<Pair<Plant, List<Bitmap>>>> {
-
-        val results = listOf(PlantRepository.loadPlant(123))
+    suspend fun loadGardenPlantsById(gardenId : Long) : Result<List<Pair<Plant, List<Bitmap>>>> {
 
         return try {
-            var resultOutput: Result<List<Pair<Plant, List<Bitmap>>>> = Result.failure(Exception("Unknown error"))
-            val outputList = mutableListOf<Pair<Plant, List<Bitmap>>>()
-
-            results.stream().forEach { result ->
-                run {
-                    result.onSuccess { plant ->
-                        val photos: List<Bitmap> =
-                            emptyList() // retrieve photos from the couple PlantId, GardenId in the GardenPlant db
-                        val output = Pair(plant, photos)
-                        outputList.add(output)
-
-                        //_gardenplantLoadSuccess.value = output
-                    }.onFailure { error ->
-                        throw Exception(error.localizedMessage ?: "Unknown error")
-                        //_errorMessage.value = error.localizedMessage ?: "Unknown error"
+            val response = RetrofitClient.gardenPlantApiService.getGardenPlantsByGardenId(gardenId)
+            if (response.isSuccessful && response.body() != null) {
+                val plants = mutableListOf<Pair<Plant, List<Bitmap>>>()
+                for (gardenplant in response.body()!!) {
+                    val p_response = RetrofitClient.plantApiService.getPlantById(gardenplant.plantId)
+                    if (!p_response.isSuccessful) {
+                        return Result.failure(Exception("Plant data is null"))
                     }
-
+                    val plant = p_response.body() ?: return Result.failure(Exception("Plant data is null"))
+                    val photos = gardenplant.photos.map { bitmapConverter.base64StringToBitmap(it.toString(Charsets.UTF_8)) }
+                    plants.add(Pair(plant, photos))
                 }
+                Result.success(plants)
 
+            } else {
+                Result.failure(Exception(Exception("Error: ${response.body() ?: ""}")))
             }
-            resultOutput = Result.success(outputList)
-            resultOutput
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 
-        }catch (e: Exception) {
+    }
+
+
+    suspend fun updateGardenPlant(gardenId : Long, plantId : Long, photos : List<Bitmap>) : Result<GardenPlant> {
+        val convPhotos = photos.map { bitmapConverter.bitmapToBase64String(it) }
+        return try {
+            val response = RetrofitClient.gardenPlantApiService.updateGardenPlant(gardenId, plantId, convPhotos)
+            if (response.isSuccessful) {
+                val plant = response.body()?.entity
+                if (plant != null) {
+                    Result.success(plant)
+                } else {
+                    Result.failure(Exception("Plant data is null"))
+                }
+            } else {
+                Result.failure(Exception("Error: ${response.body()?.message}"))
+            }
+        } catch (e: Exception) {
             Result.failure(e)
         }
 
     }
 
     suspend fun removePlant(plantId : Long, gardenId : Long) : Result<String> {
-        // TODO implement
-        return Result.success("Plant removed")
+        return try {
+            val response = RetrofitClient.gardenPlantApiService.deleteGardenPlant(gardenId, plantId)
+            if (response.isSuccessful) {
+                val message = response.body()
+                if (message != null) {
+                    Result.success(message)
+                } else {
+                    Result.failure(Exception("Delete message is null"))
+                }
+            } else {
+                Result.failure(Exception("Error: ${response.body()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 
     }
 
@@ -91,8 +111,23 @@ object GardenPlantRepository {
     }
 
     suspend fun addPlant(plantId : Long, gardenId : Long, photos : List<Bitmap>) : Result<GardenPlant> {
-        // TODO implement the save on the PlantGarden
-        return Result.success(GardenPlant(convertBitmapsToByteArrays(photos), gardenId, plantId))
+        val convPhotos = photos.map { bitmapConverter.bitmapToBase64String(it) }
+        val dto = CreategardenplantDTO(convPhotos, plantId, gardenId)
+        return try {
+            val response = RetrofitClient.gardenPlantApiService.createGardenPlant(dto)
+            if (response.isSuccessful) {
+                val plant = response.body()?.entity
+                if (plant != null) {
+                    Result.success(plant)
+                } else {
+                    Result.failure(Exception("Plant data is null"))
+                }
+            } else {
+                Result.failure(Exception("Error: ${response.body()?.message}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
 

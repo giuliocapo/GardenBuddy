@@ -33,7 +33,7 @@ fun GardenScreen(
     sharedUserViewModel: SharedUserViewModel,
     gardenScreenViewModel: GardenScreenViewModel = viewModel()
 ) {
-    val gardens by gardenScreenViewModel.gardensLoadSuccess.collectAsState() // TODO verify this
+    val garden by gardenScreenViewModel.gardenLoadSuccess.collectAsState() // TODO verify this
     val isLoading by gardenScreenViewModel.isLoading.collectAsState()
     val user by sharedUserViewModel.user.collectAsState()
 
@@ -41,7 +41,7 @@ fun GardenScreen(
     // Carica i giardini all'avvio
     LaunchedEffect(Unit) {
         // TODO user.userId get the user id
-        gardenScreenViewModel.loadGardens(1L)
+        gardenScreenViewModel.loadGarden(1L)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -53,11 +53,9 @@ fun GardenScreen(
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else {
-            LazyColumn {
-                items(gardens.orEmpty()) { garden ->
-                    GardenCard(garden = garden) {
-                        navController.navigate("garden_details/${garden.id}")
-                    }
+            garden?.let {
+                GardenCard(garden = it) {
+                    navController.navigate("garden_details/${garden!!.id}")
                 }
             }
         }

@@ -27,7 +27,7 @@ class PlantScreenViewModel : ViewModel() {
 
     // implement this stuffs in the repository file
 
-    fun loadPlant(PlantId : Long){
+    /*fun loadPlant(PlantId : Long){
 
         viewModelScope.launch {
             _isLoading.value = true
@@ -41,7 +41,7 @@ class PlantScreenViewModel : ViewModel() {
             }
         }
 
-    }
+    }*/
 
     // there isn't the add, because is handled automatically in the BE
 
