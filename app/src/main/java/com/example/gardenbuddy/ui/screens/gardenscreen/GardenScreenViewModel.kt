@@ -32,9 +32,6 @@ class GardenScreenViewModel : ViewModel() {
     private val _gardenLoadSuccess = MutableStateFlow<Garden?>(null)
     val gardenLoadSuccess = _gardenLoadSuccess.asStateFlow()
 
-    private val _gardensLoadSuccess = MutableStateFlow<List<Garden>?>(null)
-    val gardensLoadSuccess = _gardensLoadSuccess.asStateFlow()
-
     private val _gardenSaveSuccess = MutableStateFlow<Garden?>(null)
     val gardenSaveSuccess = _gardenSaveSuccess.asStateFlow()
 
@@ -158,18 +155,7 @@ class GardenScreenViewModel : ViewModel() {
         }
     }
 
-    fun loadGardens(userId : Long){
-        _isLoading.value = true
-        viewModelScope.launch {
-            val result = GardenRepository.getAllGardens(userId)
-            result.onSuccess { gardens ->
-                _gardensLoadSuccess.value = gardens
-                _isLoading.value = false
-            }.onFailure { error ->
-                _errorMessage.value = error.message ?: "An error occurred"
-            }
-        }
-    }
+
 
 
 

@@ -102,7 +102,6 @@ package "data" {
       + loadGarden(gardenId : Long) : Garden
       + saveGarden(garden : Garden) : Garden
       + deleteGarden(gardenId : Long) : String
-      + getAllGardens() : List<Garden>
     }
 
     class WeatherRepository {
