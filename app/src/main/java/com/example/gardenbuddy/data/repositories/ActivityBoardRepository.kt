@@ -13,7 +13,7 @@ object ActivityBoardRepository {
 
     // 1. Crea l'istanza di Retrofit, specificando la baseUrl del tuo server
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://your-pythonanywhere-url.com/") // Sostituisci con il TUO dominio
+        .baseUrl("https://lawrenzo.pythonanywhere.com/") // Sostituisci con il TUO dominio
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
