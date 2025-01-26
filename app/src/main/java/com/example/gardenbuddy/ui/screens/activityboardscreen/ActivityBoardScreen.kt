@@ -84,17 +84,32 @@ fun ActivityCard(activity: Activity) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Utente: ${activity.username}", style = MaterialTheme.typography.titleLarge)
-            Text(text = "Minuti: ${activity.minutes}")
-            Text(text = "Passi: ${activity.steps}")
-            Text(text = "Calorie: ${activity.calories} kcal")
+            Text(
+                text = "Utente: ${activity.username}",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+            Text(
+                text = "Minuti: ${activity.minutes}",
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+            Text(
+                text = "Passi: ${activity.steps}",
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+            Text(
+                text = "Calorie: ${activity.calories} kcal",
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 fun ActivityCardPreview() {
