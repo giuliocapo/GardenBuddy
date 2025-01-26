@@ -48,7 +48,7 @@ class PlantScreenViewModel : ViewModel() {
     fun searchPlant(photo : Bitmap){
         viewModelScope.launch {
             _isLoading.value = true
-            val result = PlantRepository.searchPlant(photo)
+            val result = PlantRepository.searchPlant(photo.toString()) // TODO modify this
             _isLoading.value = false
 
             result.onSuccess { plant ->

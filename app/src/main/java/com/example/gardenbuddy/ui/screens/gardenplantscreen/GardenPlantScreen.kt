@@ -30,11 +30,12 @@ import androidx.navigation.NavController
 import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreenViewModel
+import com.example.gardenbuddy.ui.screens.photosscreen.PhotosCard
 
 
 @Composable
 fun GardenPlantScreen(
-    gardenPlants: List<Pair<Plant, List<Bitmap>>>
+    gardenPlants: List<Pair<Plant, List<String>>>
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
@@ -52,7 +53,7 @@ fun GardenPlantScreen(
 }
 
 @Composable
-fun GardenPlantCard(plant: Plant, photos: List<Bitmap>) {
+fun GardenPlantCard(plant: Plant, photos: List<String>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,7 +63,7 @@ fun GardenPlantCard(plant: Plant, photos: List<Bitmap>) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Plant Name: ${plant.scientificName}",
+                text = plant.scientificName,
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
@@ -70,7 +71,8 @@ fun GardenPlantCard(plant: Plant, photos: List<Bitmap>) {
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = 4.dp)
             )
-            LazyRow(modifier = Modifier.padding(top = 8.dp)) {
+            PhotosCard(photos)
+            /*LazyRow(modifier = Modifier.padding(top = 8.dp)) {
                 items(photos) { photo ->
                     Image(
                         bitmap = photo.asImageBitmap(),
@@ -86,7 +88,7 @@ fun GardenPlantCard(plant: Plant, photos: List<Bitmap>) {
                             )
                     )
                 }
-            }
+            }*/
         }
     }
 }

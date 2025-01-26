@@ -8,8 +8,11 @@ import retrofit2.http.*
 
 interface GardenApiService {
 
+    @GET("gardens/garden/{userId}")
+    suspend fun getGardenById(@Path("userId") userId: String): Response<Garden>
+
     @GET("gardens/garden/{gardenId}")
-    suspend fun getGardenById(@Path("gardenId") gardenId: Long): Response<Garden>
+    suspend fun getGardenByGardenId(@Path("gardenId") gardenId: Long): Response<Garden>
 
     @POST("gardens")
     suspend fun createGarden(@Body garden: Garden): Response<ApiResponse<Garden>>

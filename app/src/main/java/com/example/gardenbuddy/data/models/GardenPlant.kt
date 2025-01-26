@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import java.io.ByteArrayOutputStream
 
 data class GardenPlant(
-    val photos : List<ByteArray>,
+    val photos : List<String>,
     val gardenId : Long,
     val plantId : Long
 )

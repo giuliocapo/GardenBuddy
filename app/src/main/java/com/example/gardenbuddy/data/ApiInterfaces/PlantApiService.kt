@@ -15,7 +15,7 @@ interface PlantApiService {
     @POST("plants/searchByPhoto")
     suspend fun searchPlantByPhoto(@Body request : SearchPhotoRequest): Response<List<Plant>>
 
-    @GET("plants/{plant_id}")
+    @GET("plants/{plantId}")
     suspend fun getPlantById(@Path("plantId") plantId: Long) : Response<Plant>
 
     @POST("plants")

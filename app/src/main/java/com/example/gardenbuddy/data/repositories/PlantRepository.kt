@@ -15,23 +15,23 @@ object PlantRepository {
 
 
 
-    /*suspend fun loadPlant(plantId : Long) : Result<Plant> {
+    suspend fun loadPlant(plantId : Long) : Result<Plant> {
         return try {
-            val response = RetrofitClient.plantApiService.(plantId)
+            val response = RetrofitClient.plantApiService.getPlantById(plantId)
             if (response.isSuccessful) {
-                val garden = response.body()
-                if (garden != null) {
-                    Result.success(garden)
+                val plant = response.body()
+                if (plant != null) {
+                    Result.success(plant)
                 } else {
                     Result.failure(Exception("Garden data is null"))
                 }
             } else {
-                Result.failure(Exception(Exception("Error: ${response.body() ?: ""}")))
+                Result.failure(Exception("Error: ${response.errorBody()?.string() ?: "Unknown error"}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }*/
+    }
 
     suspend fun searchPlant(photo: Bitmap, latitude: Double, longitude: Double): Result<Plant> {
         val dto = SearchPhotoRequest(bitmapConverter.bitmapToBase64String(photo), latitude, longitude)

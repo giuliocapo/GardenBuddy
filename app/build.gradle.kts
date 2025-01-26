@@ -72,7 +72,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.kotlinx.serialization.json)
     //implementation(libs.okhttp) // OkHttp
-
+    implementation(libs.coil.compose)
+    implementation(libs.accompanist.pager)
+    implementation(libs.accompanist.pager.indicators)
     // Firebase BoM to manage consistent versions
     implementation(platform(libs.firebase.bom))
 

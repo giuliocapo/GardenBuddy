@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 
 object RetrofitClient {
-    private const val BASE_URL = "https://your.api.url/"
+    private const val BASE_URL = "https://lawrenzo.pythonanywhere.com"
 
     private val retrofit by lazy {
         Retrofit.Builder()

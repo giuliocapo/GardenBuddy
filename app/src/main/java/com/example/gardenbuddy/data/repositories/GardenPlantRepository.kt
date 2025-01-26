@@ -12,7 +12,7 @@ object GardenPlantRepository {
 
 
 
-    suspend fun loadGardenPlant(plantId: Long, gardenId: Long): Result<Pair<Plant, List<Bitmap>>> {
+    suspend fun loadGardenPlant(plantId: Long, gardenId: Long): Result<Pair<Plant, List<String>>> {
         return try {
             val response = RetrofitClient.gardenPlantApiService.getGardenPlantByGardenIdAndPlantId(gardenId, plantId)
             if (response.isSuccessful) {
@@ -24,8 +24,9 @@ object GardenPlantRepository {
                     }
                     val plant = p_response.body() ?: return Result.failure(Exception("Plant data is null"))
 
-                    val photos = gardenplant.photos.map { bitmapConverter.base64StringToBitmap(it.toString(Charsets.UTF_8)) }
+                    val photos = gardenplant.photos
                     Result.success(Pair(plant, photos))
+
                 } else {
                     Result.failure(Exception("GardenPlant data is null"))
                 }
@@ -38,19 +39,20 @@ object GardenPlantRepository {
 
     }
 
-    suspend fun loadGardenPlantsById(gardenId : Long) : Result<List<Pair<Plant, List<Bitmap>>>> {
+    suspend fun loadGardenPlantsById(gardenId : Long) : Result<List<Pair<Plant, List<String>>>> {
 
         return try {
             val response = RetrofitClient.gardenPlantApiService.getGardenPlantsByGardenId(gardenId)
+            println(response.body())
             if (response.isSuccessful && response.body() != null) {
-                val plants = mutableListOf<Pair<Plant, List<Bitmap>>>()
+                val plants = mutableListOf<Pair<Plant, List<String>>>()
                 for (gardenplant in response.body()!!) {
                     val p_response = RetrofitClient.plantApiService.getPlantById(gardenplant.plantId)
                     if (!p_response.isSuccessful) {
                         return Result.failure(Exception("Plant data is null"))
                     }
                     val plant = p_response.body() ?: return Result.failure(Exception("Plant data is null"))
-                    val photos = gardenplant.photos.map { bitmapConverter.base64StringToBitmap(it.toString(Charsets.UTF_8)) }
+                    val photos = gardenplant.photos
                     plants.add(Pair(plant, photos))
                 }
                 Result.success(plants)
@@ -110,9 +112,9 @@ object GardenPlantRepository {
 
     }
 
-    suspend fun addPlant(plantId : Long, gardenId : Long, photos : List<Bitmap>) : Result<GardenPlant> {
-        val convPhotos = photos.map { bitmapConverter.bitmapToBase64String(it) }
-        val dto = CreategardenplantDTO(convPhotos, plantId, gardenId)
+    suspend fun addPlant(plantId : Long, gardenId : Long, photos : List<String>) : Result<GardenPlant> {
+        val convPhotos = photos
+        val dto = CreategardenplantDTO(convPhotos, gardenId, plantId)
         return try {
             val response = RetrofitClient.gardenPlantApiService.createGardenPlant(dto)
             if (response.isSuccessful) {

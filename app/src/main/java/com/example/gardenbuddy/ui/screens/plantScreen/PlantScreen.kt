@@ -34,18 +34,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.gardenbuddy.data.models.GardenPlant
 import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
+import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreenViewModel
 
 @Composable
-fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(), navController: NavController, sharedUserViewModel: SharedUserViewModel) {
+fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(), gardenId: Long, gardenScreenViewModel: GardenScreenViewModel) {
     var searchQuery by remember { mutableStateOf("") }
     val plantSearchSuccess by plantScreenViewModel.plantSearchSuccess.collectAsState()
     val isLoading by plantScreenViewModel.isLoading.collectAsState()
     val errorMessage by plantScreenViewModel.errorMessage.collectAsState()
-
-
-
     Column {
         OutlinedTextField(
             value = searchQuery,
@@ -72,14 +71,20 @@ fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(),
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else {
             plantSearchSuccess?.let { plant ->
-                PlantCardContent(plant = plant.first())
+                PlantCardContent(plant = plant.first(), gardenScreenViewModel = gardenScreenViewModel, gardenId) // TODO manage the results as a list, not as a single element
             }
         }
     }
 }
 
 @Composable
-fun PlantCardContent(plant: Plant) {
+fun PlantCardContent(
+    plant: Plant,
+    gardenScreenViewModel: GardenScreenViewModel,
+    gardenId: Long
+) {
+    val gardenPlants by gardenScreenViewModel.gardenplantsLoadSuccess.collectAsState()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -91,6 +96,22 @@ fun PlantCardContent(plant: Plant) {
             Text(text = "Plant Name: ${plant.scientificName}", style = MaterialTheme.typography.titleMedium)
             Text(text = "Species: ${plant.species}", style = MaterialTheme.typography.bodySmall)
             Text(text = "Family: ${plant.family}", style = MaterialTheme.typography.bodySmall)
+            Text(text = "Plant ID: ${plant.plantId}", style = MaterialTheme.typography.bodySmall)
+            Text(text = "Parent: ${plant.parent}", style = MaterialTheme.typography.bodySmall)
+            Text(text = "Kingdom: ${plant.kingdom}", style = MaterialTheme.typography.bodySmall)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Add button with conditional enabled state
+            Button(
+                onClick = {
+                    gardenScreenViewModel.addPlant(plant.plantId, gardenId, emptyList())
+                },
+                enabled = gardenPlants?.none { it.first.plantId == plant.plantId } ?: true,
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("Add")
+            }
         }
     }
 }
