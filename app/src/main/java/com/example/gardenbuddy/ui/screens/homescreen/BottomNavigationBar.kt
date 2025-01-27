@@ -1,5 +1,6 @@
 package com.example.gardenbuddy.ui.screens.homescreen
 
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -31,7 +32,9 @@ fun BottomNavigationBar(
 ) {
     NavigationBar(
         containerColor = Color.White,
-        contentColor = Color.Black
+        contentColor = Color.Black,
+        modifier = Modifier.offset(y = 64.dp) // Abbassa la barra di 16dp
+
     ) {
         NavigationBarItem(
             selected = selectedTab == "home",

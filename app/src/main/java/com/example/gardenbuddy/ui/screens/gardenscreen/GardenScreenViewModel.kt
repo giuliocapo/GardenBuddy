@@ -1,6 +1,8 @@
 package com.example.gardenbuddy.ui.screens.gardenscreen
 
 import android.graphics.Bitmap
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gardenbuddy.data.models.Garden
@@ -50,6 +52,10 @@ class GardenScreenViewModel : ViewModel() {
     val plantAddSuccess = _plantAddSuccess.asStateFlow()
 
 
+    private val _gardenplantsSuccess = MutableLiveData<List<Pair<Plant, List<String>>>?>(emptyList())
+    val gardenplantsSuccess: LiveData<List<Pair<Plant, List<String>>>?> = _gardenplantsSuccess
+
+
 
 
     fun loadGardenPlants(gardenId : Long){
@@ -57,10 +63,9 @@ class GardenScreenViewModel : ViewModel() {
         // now charge the Gardenplants
         viewModelScope.launch {
             val result = GardenPlantRepository.loadGardenPlantsById(gardenId)
-            println(result)
-
             result.onSuccess { List ->
-                _gardenplantsLoadSuccess.value = List
+                //_gardenplantsLoadSuccess.value = List
+                _gardenplantsSuccess.value = List
                 _gardenPlantsisLoading.value = false
             }.onFailure { error ->
                 _gardenPlantsisLoading.value = false
@@ -118,7 +123,6 @@ class GardenScreenViewModel : ViewModel() {
         viewModelScope.launch {
             val result = GardenRepository.loadGardenByGardenId(gardenId)
             result.onSuccess { garden ->
-                println(garden)
                 _gardenLoadSuccess.value = garden
                 _isLoading.value = false
             }.onFailure { error ->
@@ -156,6 +160,30 @@ class GardenScreenViewModel : ViewModel() {
         }
     }
 
+    fun updateGardenPlant(gardenId : Long, plantId : Long, photos : List<String>){
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = GardenPlantRepository.updateGardenPlant(gardenId, plantId, photos)
+            result.onSuccess { gardenPlant ->
+
+                //_gardenplantsLoadSuccess.value = _gardenplantsLoadSuccess.value?.map { pair ->
+                _gardenplantsSuccess.value = _gardenplantsSuccess.value?.map { pair ->
+                    if (pair.first.plantId == plantId) {
+                        // Update the photos for the matching plant
+                        pair.copy(second = gardenPlant.photos)
+                    } else {
+                        pair // Keep other plants unchanged
+                    }
+                }
+                _isLoading.value = false
+            }.onFailure { error ->
+                _isLoading.value = false
+                _errorMessage.value = error.message ?: "An error occurred"
+            }
+        }
+    }
+
+
     /*fun deleteGarden(gardenId : Long){
         _isLoading.value = true
         viewModelScope.launch {
@@ -170,10 +198,13 @@ class GardenScreenViewModel : ViewModel() {
     }*/
 
     fun removePlant(plantId : Long, gardenId : Long){
+        // TODO understand why the ui doesn't update the gardenplantsLoadSuccess
         _gardenPlantsisLoading.value = true
         viewModelScope.launch {
             val result = GardenPlantRepository.removePlant(plantId, gardenId)
             result.onSuccess { message ->
+                val updatedPlants = _gardenplantsSuccess.value?.filterNot { it.first.plantId == plantId }
+                _gardenplantsSuccess.value = updatedPlants
                 _plantRemoveSuccess.value = message
                 _gardenPlantsisLoading.value = false
             }.onFailure { error ->
@@ -190,9 +221,8 @@ class GardenScreenViewModel : ViewModel() {
             result.onSuccess { gardenPlant ->
                 val plantResult = PlantRepository.loadPlant(plantId)
                 plantResult.onSuccess { plant ->
-                    println(_gardenplantsLoadSuccess.value)
-                    _gardenplantsLoadSuccess.value = _gardenplantsLoadSuccess.value.orEmpty() + Pair(plant, photos)
-                    println(_gardenplantsLoadSuccess.value)
+                    //_gardenplantsLoadSuccess.value = _gardenplantsLoadSuccess.value.orEmpty() + Pair(plant, photos)
+                    _gardenplantsSuccess.value = _gardenplantsSuccess.value.orEmpty() + Pair(plant, photos)
                     _plantAddSuccess.value = gardenPlant
                     _gardenPlantsisLoading.value = false
                 }.onFailure { error ->

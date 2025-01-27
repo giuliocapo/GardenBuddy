@@ -25,5 +25,5 @@ interface GardenPlantApiService {
     suspend fun updateGardenPlant(@Path("gardenId") gardenId: Long, @Path("plantId") plantId: Long, @Body photos: List<String>): Response<ApiResponse<GardenPlant>>
 
     @DELETE("gardenPlants/{gardenId}/{plantId}")
-    suspend fun deleteGardenPlant(@Path("gardenId") gardenId: Long, @Path("plantId") plantId: Long): Response<String>
+    suspend fun deleteGardenPlant(@Path("gardenId") gardenId: Long, @Path("plantId") plantId: Long): Response<ApiResponse<GardenPlant>>
 }

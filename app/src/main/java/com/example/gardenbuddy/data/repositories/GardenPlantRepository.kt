@@ -43,7 +43,6 @@ object GardenPlantRepository {
 
         return try {
             val response = RetrofitClient.gardenPlantApiService.getGardenPlantsByGardenId(gardenId)
-            println(response.body())
             if (response.isSuccessful && response.body() != null) {
                 val plants = mutableListOf<Pair<Plant, List<String>>>()
                 for (gardenplant in response.body()!!) {
@@ -67,8 +66,8 @@ object GardenPlantRepository {
     }
 
 
-    suspend fun updateGardenPlant(gardenId : Long, plantId : Long, photos : List<Bitmap>) : Result<GardenPlant> {
-        val convPhotos = photos.map { bitmapConverter.bitmapToBase64String(it) }
+    suspend fun updateGardenPlant(gardenId : Long, plantId : Long, photos : List<String>) : Result<GardenPlant> {
+        val convPhotos = photos
         return try {
             val response = RetrofitClient.gardenPlantApiService.updateGardenPlant(gardenId, plantId, convPhotos)
             if (response.isSuccessful) {
@@ -91,7 +90,7 @@ object GardenPlantRepository {
         return try {
             val response = RetrofitClient.gardenPlantApiService.deleteGardenPlant(gardenId, plantId)
             if (response.isSuccessful) {
-                val message = response.body()
+                val message = response.body()?.message
                 if (message != null) {
                     Result.success(message)
                 } else {

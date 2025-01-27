@@ -45,6 +45,11 @@ class PlantScreenViewModel : ViewModel() {
 
     // there isn't the add, because is handled automatically in the BE
 
+    fun clearSearchResults(){
+        _plantSearchSuccess.value = emptyList()
+
+    }
+
     fun searchPlant(photo : Bitmap){
         viewModelScope.launch {
             _isLoading.value = true

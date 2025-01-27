@@ -24,21 +24,32 @@ import androidx.navigation.NavController
 import com.example.gardenbuddy.data.models.Garden
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextField
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.navigation.NavHostController
+import com.example.gardenbuddy.ui.screens.homescreen.BottomNavigationBar
+import com.example.gardenbuddy.ui.screens.photosscreen.PhotosCard
 
 @Composable
 fun GardenScreen(
-    navController: NavController,
+    navController: NavHostController,
     sharedUserViewModel: SharedUserViewModel,
     gardenScreenViewModel: GardenScreenViewModel = viewModel()
 ) {
     val garden by gardenScreenViewModel.gardenLoadSuccess.collectAsState() // TODO verify this
     val isLoading by gardenScreenViewModel.isLoading.collectAsState()
+    val selectedTab = remember { mutableStateOf("garden") }
 
 
     // Carica i giardini all'avvio
@@ -47,29 +58,148 @@ fun GardenScreen(
         gardenScreenViewModel.loadGarden(sharedUserViewModel.user.value!!.userId)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Your Gardens",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(16.dp)
-        )
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        }
-        else if (garden == null) {
-            CreateGarden(gardenScreenViewModel, sharedUserViewModel)
-        }
-        else {
-            garden?.let {
-                GardenCard(garden = it) {
-                    navController.navigate("garden_details/${garden!!.id}")
+    Scaffold(
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                selectedTab = selectedTab.value
+            ) { tab ->
+                selectedTab.value = tab
+                navController.navigate(tab) // Cambia schermata al cambio di tab
+            }
+        },
+        content = { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            )
+            {
+                Text(
+                    text = "Your Garden",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(16.dp)
+                )
+
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+                else if (garden == null) {
+                    CreateGarden(gardenScreenViewModel, sharedUserViewModel)
+                }
+                else {
+                    garden?.let {
+                        GardenCardContent(garden = it, gardenScreenViewModel) {
+                            navController.navigate("garden_details/${garden!!.id}")
+                        }
+                    }
+                }
+
+            }
+        })
+    }
+
+@Composable
+fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewModel, onClick: () -> Unit) {
+    var isEditing by remember { mutableStateOf(false) }
+    var editedName by remember { mutableStateOf(garden.name) }
+    var editedDimension by remember { mutableStateOf(garden.dimension) }
+    var editedLatitude by remember { mutableStateOf(garden.latitude) }
+    var editedLongitude by remember { mutableStateOf(garden.longitude) }
+    var newPhoto by remember { mutableStateOf("") } // Holds the new photo base64 string
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable(onClick = onClick)
+            .shadow(4.dp, shape = MaterialTheme.shapes.medium),
+
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            if (isEditing) {
+                // Editing mode
+                TextField(
+                    value = editedName,
+                    onValueChange = { editedName = it },
+                    label = { Text("Garden Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                TextField(
+                    value = editedDimension.toString(),
+                    onValueChange = { editedDimension = it.toDoubleOrNull() ?: garden.dimension },
+                    label = { Text("Dimension (sqm)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                TextField(
+                    value = editedLatitude.toString(),
+                    onValueChange = { editedLatitude = it.toDoubleOrNull() ?: garden.latitude },
+                    label = { Text("Latitude") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                TextField(
+                    value = editedLongitude.toString(),
+                    onValueChange = { editedLongitude = it.toDoubleOrNull() ?: garden.longitude },
+                    label = { Text("Longitude") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row {
+                    Button(onClick = {
+                        gardenScreenViewModel.updateGarden(garden.id, garden.copy(
+                            name = editedName,
+                            dimension = editedDimension,
+                            latitude = editedLatitude,
+                            longitude = editedLongitude
+                        ))
+                        isEditing = false
+                    }) {
+                        Text("Save")
+                    }
+                    Button(onClick = { isEditing = false }) {
+                        Text("Cancel")
+                    }
+                }
+            } else {
+                // View mode
+                Text(text = "Garden Name: ${garden.name}", style = MaterialTheme.typography.titleLarge)
+                Text(text = "Dimension: ${garden.dimension} sqm", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "Location: (${garden.latitude}, ${garden.longitude})", style = MaterialTheme.typography.bodySmall)
+                Text(text = "Id: ${garden.id}", style = MaterialTheme.typography.bodyMedium)
+                // Photos and "Add Photo" button
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    PhotosCard(photos = garden.photos)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = {
+
+                        // TODO capture photo and convert to base64
+                        if (newPhoto.isNotBlank()) {
+                            gardenScreenViewModel.updateGarden(garden.id, garden.copy(
+                                name = garden.name,
+                                dimension = garden.dimension,
+                                latitude = garden.latitude,
+                                longitude = garden.longitude,
+                                photos = garden.photos + newPhoto
+                            ))
+                            newPhoto = "" // Clear the new photo input after adding
+                        }
+                    }) {
+                        Text("Add Photo")
+                    }
+                }
+
+                Button(onClick = { isEditing = true }) {
+                    Text("Edit")
                 }
             }
         }
     }
 }
 
-@Composable
+/*@Composable
 fun GardenCard(garden: Garden, onClick: () -> Unit) {
     Card(
         modifier = Modifier
@@ -84,7 +214,7 @@ fun GardenCard(garden: Garden, onClick: () -> Unit) {
             Text(text = "Dimension: ${garden.dimension} sqm", style = MaterialTheme.typography.bodySmall)
         }
     }
-}
+}*/
 
 @Composable
 fun CreateGarden(

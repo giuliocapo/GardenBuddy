@@ -86,7 +86,7 @@ object GardenRepository {
         return try {
             val response = RetrofitClient.gardenApiService.deleteGarden(gardenId)
             if (response.isSuccessful) {
-                Result.success(response.body() ?: "")
+                Result.success(response.body()?.message ?: "")
             } else {
                 Result.failure(Exception("Error: ${response.body() ?: ""}"))
             }
