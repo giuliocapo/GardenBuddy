@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavHostController
 import com.example.gardenbuddy.ui.screens.homescreen.BottomNavigationBar
+import com.example.gardenbuddy.ui.screens.photosscreen.CameraButton
 import com.example.gardenbuddy.ui.screens.photosscreen.PhotosCard
 
 @Composable
@@ -106,7 +107,7 @@ fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewMod
     var editedDimension by remember { mutableStateOf(garden.dimension) }
     var editedLatitude by remember { mutableStateOf(garden.latitude) }
     var editedLongitude by remember { mutableStateOf(garden.longitude) }
-    var newPhoto by remember { mutableStateOf("") } // Holds the new photo base64 string
+    var showCamera by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -176,7 +177,9 @@ fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewMod
                     Button(onClick = {
 
                         // TODO capture photo and convert to base64
-                        if (newPhoto.isNotBlank()) {
+                        if (!showCamera) showCamera = true
+
+                        /*if (newPhoto.isNotBlank()) {
                             gardenScreenViewModel.updateGarden(garden.id, garden.copy(
                                 name = garden.name,
                                 dimension = garden.dimension,
@@ -185,7 +188,7 @@ fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewMod
                                 photos = garden.photos + newPhoto
                             ))
                             newPhoto = "" // Clear the new photo input after adding
-                        }
+                        }*/
                     }) {
                         Text("Add Photo")
                     }
@@ -196,6 +199,23 @@ fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewMod
                 }
             }
         }
+    }
+    if (showCamera) {
+        CameraButton(
+            gardenScreenViewModel = gardenScreenViewModel,
+            garden.id,
+            0L, // unused param
+            onDismiss = { showCamera = false },
+            onSavePhotoClick = { garden_Id, plant_Id, _photos ->
+                gardenScreenViewModel.updateGarden(garden_Id, garden.copy(
+                    name = garden.name,
+                    dimension = garden.dimension,
+                    latitude = garden.latitude,
+                    longitude = garden.longitude,
+                    photos = garden.photos + _photos
+                ))
+            }
+        )
     }
 }
 

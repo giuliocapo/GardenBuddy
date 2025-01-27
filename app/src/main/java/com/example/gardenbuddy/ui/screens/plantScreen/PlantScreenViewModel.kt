@@ -50,14 +50,14 @@ class PlantScreenViewModel : ViewModel() {
 
     }
 
-    fun searchPlant(photo : Bitmap){
+    fun searchPlant(photo : String, latitude : Double, longitude : Double){
         viewModelScope.launch {
             _isLoading.value = true
-            val result = PlantRepository.searchPlant(photo.toString()) // TODO modify this
+            val result = PlantRepository.searchPlant(photo, latitude, longitude) // TODO modify this
             _isLoading.value = false
 
             result.onSuccess { plant ->
-                _plantSearchSuccess.value = plant
+                _plantSearchSuccess.value = listOf(plant)
             }.onFailure { error ->
                 _errorMessage.value = error.localizedMessage ?: "Unknown error"
             }

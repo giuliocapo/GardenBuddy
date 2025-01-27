@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -46,6 +47,7 @@ import com.example.gardenbuddy.data.models.GardenPlant
 import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreenViewModel
+import com.example.gardenbuddy.ui.screens.photosscreen.CameraButton
 
 @Composable
 fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(), gardenId: Long, gardenScreenViewModel: GardenScreenViewModel) {
@@ -53,12 +55,38 @@ fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(),
     val plantSearchSuccess by plantScreenViewModel.plantSearchSuccess.collectAsState()
     val isLoading by plantScreenViewModel.isLoading.collectAsState()
     val errorMessage by plantScreenViewModel.errorMessage.collectAsState()
+    var showCamera by remember { mutableStateOf(false) }
+
     Column {
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             label = { Text("Search by Name") },
             trailingIcon = {
+                Row {
+                    // Clear icon (appears when there's text in the search query)
+                    if (searchQuery.isBlank()) {
+                        IconButton(onClick = {
+                            // call the camera function
+                            if (!showCamera) showCamera = true
+                        }) {
+                            Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
+                        }
+                    }
+
+                    // Search icon (appears when search query is non-empty and the user triggers search)
+                    if (searchQuery.isNotBlank()) {
+                        IconButton(onClick = {
+                            plantScreenViewModel.searchPlant(searchQuery) // Trigger the search
+                        }) {
+                            Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+                        }
+                    } else {
+                        plantScreenViewModel.clearSearchResults()
+                    }
+                }
+            },
+            /*trailingIcon = {
                 IconButton(onClick = {
                     plantScreenViewModel.clearSearchResults()
                     if (searchQuery.isNotBlank()) {
@@ -67,7 +95,7 @@ fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(),
                 }) {
                     Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
                 }
-            },
+            },*/
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -88,6 +116,16 @@ fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(),
                 }
             }
         }
+    }
+    if (showCamera) {
+        CameraButton(
+            gardenScreenViewModel = gardenScreenViewModel,
+            gardenId,
+            0L, // unused param
+            onDismiss = { showCamera = false },
+            onSavePhotoClick = { garden_Id, plant_Id, _photos ->
+                plantScreenViewModel.searchPlant(_photos.first(), 0.0, 0.0)}
+            )
     }
 }
 

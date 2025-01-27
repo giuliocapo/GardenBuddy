@@ -1,6 +1,7 @@
 package com.example.gardenbuddy.data.ApiInterfaces
 
 import com.example.gardenbuddy.data.Dtos.requests.CreategardenplantDTO
+import com.example.gardenbuddy.data.Dtos.requests.UpdateGardenPlantRequest
 import com.example.gardenbuddy.data.Dtos.responses.ApiResponse
 import com.example.gardenbuddy.data.models.Garden
 import com.example.gardenbuddy.data.models.GardenPlant
@@ -22,7 +23,7 @@ interface GardenPlantApiService {
     suspend fun createGardenPlant(@Body gardenPlant: CreategardenplantDTO): Response<ApiResponse<GardenPlant>>
 
     @PUT("gardenPlants/{gardenId}/{plantId}")
-    suspend fun updateGardenPlant(@Path("gardenId") gardenId: Long, @Path("plantId") plantId: Long, @Body photos: List<String>): Response<ApiResponse<GardenPlant>>
+    suspend fun updateGardenPlant(@Path("gardenId") gardenId: Long, @Path("plantId") plantId: Long, @Body body: UpdateGardenPlantRequest): Response<ApiResponse<GardenPlant>>
 
     @DELETE("gardenPlants/{gardenId}/{plantId}")
     suspend fun deleteGardenPlant(@Path("gardenId") gardenId: Long, @Path("plantId") plantId: Long): Response<ApiResponse<GardenPlant>>

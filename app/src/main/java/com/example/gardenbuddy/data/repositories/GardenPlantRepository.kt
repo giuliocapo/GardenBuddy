@@ -2,6 +2,7 @@ package com.example.gardenbuddy.data.repositories
 
 import android.graphics.Bitmap
 import com.example.gardenbuddy.data.Dtos.requests.CreategardenplantDTO
+import com.example.gardenbuddy.data.Dtos.requests.UpdateGardenPlantRequest
 import com.example.gardenbuddy.data.models.GardenPlant
 import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.utils.RetrofitClient
@@ -67,9 +68,10 @@ object GardenPlantRepository {
 
 
     suspend fun updateGardenPlant(gardenId : Long, plantId : Long, photos : List<String>) : Result<GardenPlant> {
-        val convPhotos = photos
+
         return try {
-            val response = RetrofitClient.gardenPlantApiService.updateGardenPlant(gardenId, plantId, convPhotos)
+            val body = UpdateGardenPlantRequest(photos)
+            val response = RetrofitClient.gardenPlantApiService.updateGardenPlant(gardenId, plantId, body)
             if (response.isSuccessful) {
                 val plant = response.body()?.entity
                 if (plant != null) {

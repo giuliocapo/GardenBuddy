@@ -33,8 +33,8 @@ object PlantRepository {
         }
     }
 
-    suspend fun searchPlant(photo: Bitmap, latitude: Double, longitude: Double): Result<Plant> {
-        val dto = SearchPhotoRequest(bitmapConverter.bitmapToBase64String(photo), latitude, longitude)
+    suspend fun searchPlant(photo: String, latitude: Double, longitude: Double): Result<Plant> {
+        val dto = SearchPhotoRequest(photo, latitude, longitude)
         return try {
             val response = RetrofitClient.plantApiService.searchPlantByPhoto(dto)
             if (response.isSuccessful) {

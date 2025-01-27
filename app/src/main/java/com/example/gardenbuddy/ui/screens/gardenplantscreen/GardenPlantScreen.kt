@@ -1,6 +1,11 @@
 package com.example.gardenbuddy.ui.screens.gardenplantscreen
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.util.Base64
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -22,8 +28,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,13 +43,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreenViewModel
+import com.example.gardenbuddy.ui.screens.photosscreen.CameraButton
 import com.example.gardenbuddy.ui.screens.photosscreen.PhotosCard
+import java.io.ByteArrayOutputStream
 
 
 @Composable
@@ -66,7 +80,8 @@ fun GardenPlantScreen(
 
 @Composable
 fun GardenPlantCard(plant: Plant, photos: List<String>, gardenScreenViewModel: GardenScreenViewModel, gardenId : Long) {
-    var newPhoto by remember { mutableStateOf("") } // Holds the new photo base64 string
+    var showCamera by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -93,16 +108,10 @@ fun GardenPlantCard(plant: Plant, photos: List<String>, gardenScreenViewModel: G
                     verticalArrangement = Arrangement.SpaceBetween // Ensure spacing between buttons
                 ) {
                     Button(
+
                         onClick = {
-                            if (newPhoto.isNotBlank()) {
-                                gardenScreenViewModel.updateGardenPlant(
-                                    gardenId,
-                                    plant.plantId,
-                                    photos
-                                )
-                                newPhoto = "" // Clear the new photo input after adding
-                            }
-                        },
+                            if (!showCamera) showCamera = true },
+
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Add Photo")
@@ -125,4 +134,18 @@ fun GardenPlantCard(plant: Plant, photos: List<String>, gardenScreenViewModel: G
             }
         }
     }
+    if (showCamera) {
+        CameraButton(
+            gardenScreenViewModel = gardenScreenViewModel,
+            gardenId,
+            plant.plantId,
+            onDismiss = { showCamera = false },
+            onSavePhotoClick = { garden_Id, plant_Id, _photos ->
+                gardenScreenViewModel.updateGardenPlant(garden_Id, plant_Id, _photos)
+            }
+        )
+    }
+
 }
+
+

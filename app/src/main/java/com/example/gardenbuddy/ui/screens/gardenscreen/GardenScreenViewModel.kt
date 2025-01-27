@@ -161,6 +161,8 @@ class GardenScreenViewModel : ViewModel() {
     }
 
     fun updateGardenPlant(gardenId : Long, plantId : Long, photos : List<String>){
+        println("dentro update garden plant")
+
         _isLoading.value = true
         viewModelScope.launch {
             val result = GardenPlantRepository.updateGardenPlant(gardenId, plantId, photos)
