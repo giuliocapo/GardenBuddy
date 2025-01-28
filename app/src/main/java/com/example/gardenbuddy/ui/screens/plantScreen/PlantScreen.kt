@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -48,6 +49,7 @@ import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreenViewModel
 import com.example.gardenbuddy.ui.screens.photosscreen.CameraButton
+import androidx.compose.material.icons.filled.Camera
 
 @Composable
 fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(), gardenId: Long, gardenScreenViewModel: GardenScreenViewModel) {
@@ -70,38 +72,27 @@ fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(),
                             // call the camera function
                             if (!showCamera) showCamera = true
                         }) {
-                            Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
+                            Icon(imageVector = Icons.Filled.Camera, contentDescription = "Camera")
                         }
                     }
 
-                    // Search icon (appears when search query is non-empty and the user triggers search)
+                    // Search icon (appears when search query is non-empty)
                     if (searchQuery.isNotBlank()) {
                         IconButton(onClick = {
-                            plantScreenViewModel.searchPlant(searchQuery) // Trigger the search
+                            plantScreenViewModel.searchPlant(searchQuery)
                         }) {
                             Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
                         }
-                    } else {
-                        plantScreenViewModel.clearSearchResults()
                     }
+                    // Remove the else branch that was clearing the results
                 }
             },
-            /*trailingIcon = {
-                IconButton(onClick = {
-                    plantScreenViewModel.clearSearchResults()
-                    if (searchQuery.isNotBlank()) {
-                        plantScreenViewModel.searchPlant(searchQuery)
-                    }
-                }) {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-                }
-            },*/
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
         if (errorMessage.isNotEmpty()) {
-            Text(text = "Error: $errorMessage")
+            Text(text = errorMessage)
         }
 
         if (isLoading) {

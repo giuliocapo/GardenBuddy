@@ -83,40 +83,42 @@ fun PhotosCard(photos: List<String>) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left button for the previous photo
-                    IconButton(
-                        onClick = {
-                            currentPhotoIndex = if (currentPhotoIndex > 0) {
-                                currentPhotoIndex - 1
-                            } else {
-                                photos.lastIndex
-                            }
-                        },
-                        modifier = Modifier.size(36.dp) // Keeps button size consistent
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Previous Photo",
-                            tint = Color.White
-                        )
-                    }
+                    if(photos.size > 1) {
+                        // Left button for the previous photo
+                        IconButton(
+                            onClick = {
+                                currentPhotoIndex = if (currentPhotoIndex > 0) {
+                                    currentPhotoIndex - 1
+                                } else {
+                                    photos.lastIndex
+                                }
+                            },
+                            modifier = Modifier.size(36.dp) // Keeps button size consistent
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Previous Photo",
+                                tint = Color.White
+                            )
+                        }
 
-                    // Right button for the next photo
-                    IconButton(
-                        onClick = {
-                            currentPhotoIndex = if (currentPhotoIndex < photos.lastIndex) {
-                                currentPhotoIndex + 1
-                            } else {
-                                0
-                            }
-                        },
-                        modifier = Modifier.size(36.dp) // Keeps button size consistent
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowForward,
-                            contentDescription = "Next Photo",
-                            tint = Color.White
-                        )
+                        // Right button for the next photo
+                        IconButton(
+                            onClick = {
+                                currentPhotoIndex = if (currentPhotoIndex < photos.lastIndex) {
+                                    currentPhotoIndex + 1
+                                } else {
+                                    0
+                                }
+                            },
+                            modifier = Modifier.size(36.dp) // Keeps button size consistent
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowForward,
+                                contentDescription = "Next Photo",
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
             }

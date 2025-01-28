@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.accompanist.pager.indicators)
     // Firebase BoM to manage consistent versions
     implementation(platform(libs.firebase.bom))
+    implementation(libs.material.icons.extended)
 
     // Add Firebase dependencies (only the necessary ones)
     implementation(libs.firebase.firestore) // Firestore Database

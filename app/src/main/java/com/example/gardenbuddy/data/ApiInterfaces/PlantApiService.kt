@@ -2,6 +2,7 @@ package com.example.gardenbuddy.data.ApiInterfaces
 
 import com.example.gardenbuddy.data.Dtos.requests.SearchPhotoRequest
 import com.example.gardenbuddy.data.Dtos.responses.ApiResponse
+import com.example.gardenbuddy.data.Dtos.responses.ResponseDto
 
 import com.example.gardenbuddy.data.models.Plant
 import retrofit2.http.*
@@ -9,10 +10,10 @@ import retrofit2.Response
 
 interface PlantApiService {
     @GET("plants/searchByName")
-    suspend fun searchPlantByName(@Query("name") name: String, @Query("limit") limit: Int = 1) : Response<List<Plant>>
+    suspend fun searchPlantByName(@Query("name") name: String, @Query("limit") limit: Int = 1) : Response<ResponseDto>
 
     @POST("plants/searchByPhoto")
-    suspend fun searchPlantByPhoto(@Body request : SearchPhotoRequest): Response<List<Plant>>
+    suspend fun searchPlantByPhoto(@Body request : SearchPhotoRequest): Response<ResponseDto>
 
     @GET("plants/{plantId}")
     suspend fun getPlantById(@Path("plantId") plantId: Long) : Response<Plant>

@@ -2,16 +2,23 @@ package com.example.gardenbuddy.data.repositories
 
 import android.graphics.Bitmap
 import com.example.gardenbuddy.data.Dtos.requests.SearchPhotoRequest
-import com.example.gardenbuddy.data.Dtos.responses.SearchNameResponse
+import com.example.gardenbuddy.data.Dtos.responses.ResponseDto
 import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.utils.RetrofitClient
 import com.example.gardenbuddy.utils.bitmapConverter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 
 
 object PlantRepository {
+
+    val json = Json { ignoreUnknownKeys = true }
+    fun parseResponse(response: String): ResponseDto {
+        return json.decodeFromString(ResponseDto.serializer(), response)
+    }
 
 
 
@@ -33,40 +40,69 @@ object PlantRepository {
         }
     }
 
-    suspend fun searchPlant(photo: String, latitude: Double, longitude: Double): Result<Plant> {
+    suspend fun searchPlant(photo: String, latitude: Double, longitude: Double): Result<List<Plant>> {
         val dto = SearchPhotoRequest(photo, latitude, longitude)
-        return try {
-            val response = RetrofitClient.plantApiService.searchPlantByPhoto(dto)
-            if (response.isSuccessful) {
-                val plants = response.body()
-                if (!plants.isNullOrEmpty()) {
-                    Result.success(plants.first()) // Return the first plant from the list
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = RetrofitClient.plantApiService.searchPlantByPhoto(dto)
+
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                        ?: return@withContext Result.failure(Exception("Empty response body"))
+
+                    when (responseBody) {
+                        is ResponseDto.Success -> {
+                            val plants = responseBody.results.results
+                            if (plants.isNotEmpty()) {
+                                return@withContext Result.success(plants) // Return the first plant from the list
+                            } else {
+                                return@withContext Result.failure(Exception("No plants found"))
+                            }
+                        }
+                        is ResponseDto.Error -> {
+
+                            return@withContext Result.failure(Exception(responseBody.errorResponse.error))
+                        }
+                    }
                 } else {
-                    Result.failure(Exception("No plants found"))
+                    val errorMessage = response.errorBody()?.string() ?: "Unknown error"
+                    return@withContext Result.failure(Exception("Error: $errorMessage"))
                 }
-            } else {
-                Result.failure(Exception("Error: ${response.errorBody()?.string() ?: "Unknown error"}"))
+            } catch (e: Exception) {
+                return@withContext Result.failure(e)
             }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
     }
 
     suspend fun searchPlant(name : String) : Result<List<Plant>>{
-        return try {
-            val response = RetrofitClient.plantApiService.searchPlantByName(name)
-            if (response.isSuccessful) {
-                val plants = response.body()
-                if (!plants.isNullOrEmpty()) {
-                    Result.success(plants)
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = RetrofitClient.plantApiService.searchPlantByName(name)
+
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                        ?: return@withContext Result.failure(Exception("Empty response body"))
+
+                    when (responseBody) {
+                        is ResponseDto.Success -> {
+                            val plants = responseBody.results.results
+                            if (plants.isNotEmpty()) {
+                                return@withContext Result.success(plants)
+                            } else {
+                                return@withContext Result.failure(Exception("No plants found"))
+                            }
+                        }
+                        is ResponseDto.Error -> {
+                            return@withContext Result.failure(Exception(responseBody.errorResponse.error))
+                        }
+                    }
                 } else {
-                    Result.failure(Exception("No plants found"))
+                    val errorMessage = response.errorBody()?.string() ?: "Unknown error"
+                    return@withContext Result.failure(Exception("Error: $errorMessage"))
                 }
-            } else {
-                Result.failure(Exception("Error: ${response.errorBody()?.string() ?: "Unknown error"}"))
+            } catch (e: Exception) {
+                return@withContext Result.failure(e)
             }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
 
     }
