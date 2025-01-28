@@ -143,7 +143,7 @@ fun CameraButton(
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Save Photo")
+                            Text("Ok")
                         }
                     }
                 }

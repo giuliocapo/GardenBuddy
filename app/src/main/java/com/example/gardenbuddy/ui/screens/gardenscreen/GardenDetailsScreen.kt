@@ -73,7 +73,6 @@ fun GardenDetailsScreen(
 
     // Carica i dati
     LaunchedEffect(gardenId) {
-        //gardenScreenViewModel.loadGardenByGardenId(gardenId)
         gardenScreenViewModel.loadGardenPlants(gardenId)
     }
 

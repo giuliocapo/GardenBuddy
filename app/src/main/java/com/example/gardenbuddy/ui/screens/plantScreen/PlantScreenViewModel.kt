@@ -62,10 +62,17 @@ class PlantScreenViewModel : ViewModel() {
             result.onSuccess { plant ->
                 _plantSearchSuccess.value = plant
             }.onFailure { error ->
-                try {
-                    val errorJson = JSONObject(error.message ?: "")
-                    _errorMessage.value = errorJson.getString("error")
-                } catch (e: Exception) {
+                _plantSearchSuccess.value = null
+                val errorMessage = error.message ?: ""
+                if (errorMessage.startsWith("Error: ")) {
+                    try {
+                        val jsonString = errorMessage.substring(7) // Remove "Error: " prefix
+                        val errorJson = JSONObject(jsonString)
+                        _errorMessage.value = errorJson.getString("error")
+                    } catch (e: Exception) {
+                        _errorMessage.value = error.message ?: "Unknown error"
+                    }
+                } else {
                     _errorMessage.value = error.message ?: "Unknown error"
                 }
             }
@@ -83,6 +90,8 @@ class PlantScreenViewModel : ViewModel() {
             result.onSuccess { plant ->
                 _plantSearchSuccess.value = plant
             }.onFailure { error ->
+                _plantSearchSuccess.value = null
+
                 val errorMessage = error.message ?: ""
                 if (errorMessage.startsWith("Error: ")) {
                     try {

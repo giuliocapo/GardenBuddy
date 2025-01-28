@@ -1,5 +1,11 @@
 package com.example.gardenbuddy.ui.screens.gardenscreen
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,13 +40,22 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.gardenbuddy.ui.screens.homescreen.BottomNavigationBar
 import com.example.gardenbuddy.ui.screens.photosscreen.CameraButton
 import com.example.gardenbuddy.ui.screens.photosscreen.PhotosCard
+import com.example.gardenbuddy.utils.LocationUtils
+import com.example.gardenbuddy.utils.LocationUtils.getCurrentLocation
+import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.launch
 
 @Composable
 fun GardenScreen(
@@ -108,6 +123,21 @@ fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewMod
     var editedLatitude by remember { mutableStateOf(garden.latitude) }
     var editedLongitude by remember { mutableStateOf(garden.longitude) }
     var showCamera by remember { mutableStateOf(false) }
+    val hasLocationPermission by gardenScreenViewModel.hasLocationPermission.collectAsState()
+    val currentLocation by gardenScreenViewModel.currentLocation.collectAsState()
+    var isUpdatingLocation by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val activity = context as ComponentActivity
+
+    // Handle permission result
+    val permissionLauncher = LocationUtils.rememberLocationPermissionLauncher { isGranted ->
+        gardenScreenViewModel.updatePermissionStatus(isGranted)
+    }
+    LaunchedEffect(Unit) {
+        gardenScreenViewModel.checkInitialPermission(activity)
+    }
+
 
     Card(
         modifier = Modifier
@@ -115,7 +145,6 @@ fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewMod
             .padding(8.dp)
             .clickable(onClick = onClick)
             .shadow(4.dp, shape = MaterialTheme.shapes.medium),
-
         shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -129,25 +158,65 @@ fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewMod
                 )
                 TextField(
                     value = editedDimension.toString(),
-                    onValueChange = { editedDimension = it.toDoubleOrNull() ?: garden.dimension },
+                    onValueChange = { editedDimension = it.toDoubleOrNull() ?: editedDimension },
                     label = { Text("Dimension (sqm)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
                 TextField(
                     value = editedLatitude.toString(),
-                    onValueChange = { editedLatitude = it.toDoubleOrNull() ?: garden.latitude },
+                    onValueChange = { input ->
+                        println("input: $input")
+                        val parsedValue = input.toDoubleOrNull()
+
+                        if (parsedValue != null) {
+                            editedLatitude = parsedValue
+                        }
+                    },
                     label = { Text("Latitude") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 TextField(
                     value = editedLongitude.toString(),
-                    onValueChange = { editedLongitude = it.toDoubleOrNull() ?: garden.longitude },
+                    onValueChange = { input ->
+                        val parsedValue = input.toDoubleOrNull()
+                        if (parsedValue != null) {
+                            editedLongitude = parsedValue
+                        }
+                    },
                     label = { Text("Longitude") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
+
+
+                if (hasLocationPermission) {
+                    Button(onClick = {
+                        isUpdatingLocation = true
+                        gardenScreenViewModel.fetchCurrentLocation(activity) }) {
+                        Text("Get Current Location")
+                    }
+
+                    if (isUpdatingLocation && currentLocation != null) {
+                        currentLocation?.let { (latitude, longitude) ->
+                            // Only update if `isUpdatingLocation` is true
+
+                            editedLatitude = latitude
+                            editedLongitude = longitude
+                            isUpdatingLocation = false // Reset after updating
+                        }
+
+                    }
+                } else {
+                    Button(onClick = {
+                        gardenScreenViewModel.requestLocationPermission(activity, permissionLauncher)
+                    }) {
+                        Text("Request Location Permission")
+                    }
+                }
+
                 Row {
                     Button(onClick = {
                         gardenScreenViewModel.updateGarden(garden.id, garden.copy(
@@ -166,29 +235,14 @@ fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewMod
                 }
             } else {
                 // View mode
-                Text(text = "Garden Name: ${garden.name}", style = MaterialTheme.typography.titleLarge)
+                Text(text = "Name of the garden: ${garden.name}", style = MaterialTheme.typography.titleLarge)
                 Text(text = "Dimension: ${garden.dimension} sqm", style = MaterialTheme.typography.bodyMedium)
                 Text(text = "Location: (${garden.latitude}, ${garden.longitude})", style = MaterialTheme.typography.bodySmall)
-                Text(text = "Id: ${garden.id}", style = MaterialTheme.typography.bodyMedium)
-                // Photos and "Add Photo" button
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     PhotosCard(photos = garden.photos)
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
-
-                        // TODO capture photo and convert to base64
                         if (!showCamera) showCamera = true
-
-                        /*if (newPhoto.isNotBlank()) {
-                            gardenScreenViewModel.updateGarden(garden.id, garden.copy(
-                                name = garden.name,
-                                dimension = garden.dimension,
-                                latitude = garden.latitude,
-                                longitude = garden.longitude,
-                                photos = garden.photos + newPhoto
-                            ))
-                            newPhoto = "" // Clear the new photo input after adding
-                        }*/
                     }) {
                         Text("Add Photo")
                     }
@@ -294,10 +348,6 @@ fun CreateGarden(
                 val gardenLatitude = latitude.text.toDoubleOrNull()
                 val gardenLongitude = longitude.text.toDoubleOrNull()
                 val gardenDimension = dimension.text.toDoubleOrNull()
-                println(gardenName)
-                println(gardenLatitude)
-                println(gardenLongitude)
-                println(gardenDimension)
 
                 if (gardenName.isNotBlank() && gardenLatitude != null && gardenLongitude != null && gardenDimension != null) {
                     val newGarden = Garden(

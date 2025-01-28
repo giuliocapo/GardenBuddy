@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -49,60 +50,81 @@ import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreenViewModel
 import com.example.gardenbuddy.ui.screens.photosscreen.CameraButton
-import androidx.compose.material.icons.filled.Camera
 
 @Composable
 fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(), gardenId: Long, gardenScreenViewModel: GardenScreenViewModel) {
     var searchQuery by remember { mutableStateOf("") }
     val plantSearchSuccess by plantScreenViewModel.plantSearchSuccess.collectAsState()
     val isLoading by plantScreenViewModel.isLoading.collectAsState()
+    val isLoadingCoordinates by gardenScreenViewModel.isLoadingCoordinates.collectAsState()
     val errorMessage by plantScreenViewModel.errorMessage.collectAsState()
     var showCamera by remember { mutableStateOf(false) }
+    val gardenCoordinates by gardenScreenViewModel.gardencoordinatesSuccess.observeAsState()
+
+
+    LaunchedEffect(gardenId) {
+        gardenScreenViewModel.getGardenCoordinates(gardenId)
+    }
 
     Column {
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Search by Name") },
-            trailingIcon = {
-                Row {
-                    // Clear icon (appears when there's text in the search query)
-                    if (searchQuery.isBlank()) {
-                        IconButton(onClick = {
-                            // call the camera function
-                            if (!showCamera) showCamera = true
-                        }) {
-                            Icon(imageVector = Icons.Filled.Camera, contentDescription = "Camera")
-                        }
-                    }
-
-                    // Search icon (appears when search query is non-empty)
-                    if (searchQuery.isNotBlank()) {
-                        IconButton(onClick = {
-                            plantScreenViewModel.searchPlant(searchQuery)
-                        }) {
-                            Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
-                        }
-                    }
-                    // Remove the else branch that was clearing the results
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-        if (errorMessage.isNotEmpty()) {
-            Text(text = errorMessage)
-        }
-
-        if (isLoading) {
+        if (isLoadingCoordinates) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else {
-            plantSearchSuccess?.let { plants ->
-                // Iterate over each plant in the list and display the PlantCardContent
-                LazyColumn { // Using LazyColumn for a more efficient rendering of lists
-                    items(plants) { plant ->
-                        PlantCardContent(plant = plant, gardenScreenViewModel = gardenScreenViewModel, gardenId = gardenId)
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Search plants") },
+                trailingIcon = {
+                    Row {
+
+                        if (searchQuery.isBlank() && (gardenCoordinates?.first
+                                ?: 0.0) != 0.0 && (gardenCoordinates?.second ?: 0.0) != 0.0
+                        ) {
+                            IconButton(onClick = {
+                                // call the camera function
+                                if (!showCamera) showCamera = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.CameraAlt, // TODO change the icon
+                                    contentDescription = "Camera"
+                                )
+                            }
+                        }
+
+                        // Search icon (appears when search query is non-empty)
+                        if (searchQuery.isNotBlank()) {
+                            IconButton(onClick = {
+                                plantScreenViewModel.searchPlant(searchQuery)
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search"
+                                )
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            if (errorMessage.isNotEmpty()) {
+                Text(text = errorMessage)
+            }
+
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else {
+                plantSearchSuccess?.let { plants ->
+                    // Iterate over each plant in the list and display the PlantCardContent
+                    LazyColumn { // Using LazyColumn for a more efficient rendering of lists
+                        items(plants) { plant ->
+                            PlantCardContent(
+                                plant = plant,
+                                gardenScreenViewModel = gardenScreenViewModel,
+                                gardenId = gardenId
+                            )
+                        }
                     }
                 }
             }
@@ -115,7 +137,8 @@ fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(),
             0L, // unused param
             onDismiss = { showCamera = false },
             onSavePhotoClick = { garden_Id, plant_Id, _photos ->
-                plantScreenViewModel.searchPlant(_photos.first(), 0.0, 0.0)}
+                gardenCoordinates?.let { plantScreenViewModel.searchPlant(_photos.first(), it.first, it.second) }
+            }
             )
     }
 }

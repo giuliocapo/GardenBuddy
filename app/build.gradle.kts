@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.firebase.common.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -78,7 +79,6 @@ dependencies {
     implementation(libs.accompanist.pager.indicators)
     // Firebase BoM to manage consistent versions
     implementation(platform(libs.firebase.bom))
-    implementation(libs.material.icons.extended)
 
     // Add Firebase dependencies (only the necessary ones)
     implementation(libs.firebase.firestore) // Firestore Database
@@ -90,6 +90,7 @@ dependencies {
 
     // Gson Converter (to parse JSON)
     implementation(libs.retrofit.converter.gson)
+    implementation("androidx.compose.material:material-icons-extended:${libs.versions.compose.get()}")
 
 
 }

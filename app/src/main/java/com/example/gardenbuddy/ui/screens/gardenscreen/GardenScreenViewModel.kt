@@ -1,6 +1,12 @@
 package com.example.gardenbuddy.ui.screens.gardenscreen
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +18,8 @@ import com.example.gardenbuddy.data.repositories.AuthRepository
 import com.example.gardenbuddy.data.repositories.GardenPlantRepository
 import com.example.gardenbuddy.data.repositories.GardenRepository
 import com.example.gardenbuddy.data.repositories.PlantRepository
+import com.example.gardenbuddy.utils.LocationUtils
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -54,6 +62,57 @@ class GardenScreenViewModel : ViewModel() {
 
     private val _gardenplantsSuccess = MutableLiveData<List<Pair<Plant, List<String>>>?>(emptyList())
     val gardenplantsSuccess: LiveData<List<Pair<Plant, List<String>>>?> = _gardenplantsSuccess
+
+    private val _gardencoordinatesSuccess = MutableLiveData<Pair<Double, Double>?>()
+    val gardencoordinatesSuccess: LiveData<Pair<Double, Double>?> = _gardencoordinatesSuccess
+
+    private val _isLoadingCoordinates = MutableStateFlow(false)
+    val isLoadingCoordinates = _isLoadingCoordinates.asStateFlow()
+
+    private val _hasLocationPermission = MutableStateFlow(false)
+    val hasLocationPermission: MutableStateFlow<Boolean> = _hasLocationPermission
+
+    private val _currentLocation = MutableStateFlow<Pair<Double, Double>?>(null)
+    val currentLocation: MutableStateFlow<Pair<Double, Double>?> = _currentLocation
+
+    /**
+     * Request location permissions and update state based on the result.
+     */
+    fun requestLocationPermission(
+        activity: ComponentActivity,
+        permissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
+    ) {
+        LocationUtils.requestLocationPermissions(activity, permissionLauncher)
+    }
+
+    /**
+     * Update permission status when the result is received.
+     */
+    fun updatePermissionStatus(isGranted: Boolean) {
+        println("isGranted: $isGranted")
+        _hasLocationPermission.value = isGranted
+    }
+
+    /**
+     * Fetch the current location if permissions are granted.
+     */
+    fun fetchCurrentLocation(activity: ComponentActivity) {
+        viewModelScope.launch {
+            if (_hasLocationPermission.value) {
+                val location = LocationUtils.getCurrentLocation(activity)
+                _currentLocation.value = location
+            }
+        }
+    }
+
+    fun checkInitialPermission(activity: ComponentActivity) {
+        val isGranted = ContextCompat.checkSelfPermission(
+            activity,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        _hasLocationPermission.value = isGranted
+    }
 
 
 
@@ -161,7 +220,6 @@ class GardenScreenViewModel : ViewModel() {
     }
 
     fun updateGardenPlant(gardenId : Long, plantId : Long, photos : List<String>){
-        println("dentro update garden plant")
 
         _isLoading.value = true
         viewModelScope.launch {
@@ -180,6 +238,20 @@ class GardenScreenViewModel : ViewModel() {
                 _isLoading.value = false
             }.onFailure { error ->
                 _isLoading.value = false
+                _errorMessage.value = error.message ?: "An error occurred"
+            }
+        }
+    }
+
+    fun getGardenCoordinates(gardenId : Long){
+        _isLoadingCoordinates.value = true
+        viewModelScope.launch {
+            val result = GardenRepository.loadGardenByGardenId(gardenId)
+            result.onSuccess { garden ->
+                _gardencoordinatesSuccess.value = Pair(garden.latitude, garden.longitude)
+                _isLoadingCoordinates.value = false
+            }.onFailure { error ->
+                _isLoadingCoordinates.value = false
                 _errorMessage.value = error.message ?: "An error occurred"
             }
         }
