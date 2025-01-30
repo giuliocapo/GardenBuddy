@@ -17,7 +17,8 @@ import java.util.Date
 @Composable
 fun SignUpScreen(
     navController: NavController,
-    signUpViewModel: SignUpScreenViewModel = viewModel()
+    signUpViewModel: SignUpScreenViewModel = viewModel(),
+    sharedUserViewModel : SharedUserViewModel
 ) {
     val errorMessage by signUpViewModel.errorMessage.collectAsState()
     val isLoading by signUpViewModel.isLoading.collectAsState()
@@ -26,6 +27,7 @@ fun SignUpScreen(
     // Se la registrazione ha successo, navighiamo al profilo
     LaunchedEffect(signUpSuccess) {
         signUpSuccess?.let { user ->
+            sharedUserViewModel.setUser(user)
             navController.navigate("userProfile/${user.userId}") {
                 // Rimuove la SignUpScreen dallo stack
                 popUpTo("signUp") { inclusive = true }
