@@ -124,6 +124,6 @@ fun PhotosCard(photos: List<String>) {
             }
         }
     } else {
-        Text("No photos available", modifier = Modifier.padding(8.dp))
+        Text("No photo", modifier = Modifier.padding(8.dp))
     }
 }

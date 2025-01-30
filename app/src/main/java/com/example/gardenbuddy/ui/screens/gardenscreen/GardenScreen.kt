@@ -219,13 +219,16 @@ fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewMod
 
                 Row {
                     Button(onClick = {
-                        gardenScreenViewModel.updateGarden(garden.id, garden.copy(
-                            name = editedName,
-                            dimension = editedDimension,
-                            latitude = editedLatitude,
-                            longitude = editedLongitude
-                        ))
-                        isEditing = false
+                        if(editedName.isNotBlank() && editedDimension.isNaN().not() && editedLatitude.isNaN().not() && editedLongitude.isNaN().not()){
+                            gardenScreenViewModel.updateGarden(garden.id, garden.copy(
+                                name = editedName,
+                                dimension = editedDimension,
+                                latitude = editedLatitude,
+                                longitude = editedLongitude
+                            ))
+                            isEditing = false
+                        }
+
                     }) {
                         Text("Save")
                     }
@@ -298,9 +301,24 @@ fun CreateGarden(
 
     // State variables for the form fields
     var name by remember { mutableStateOf(TextFieldValue("")) }
-    var latitude by remember { mutableStateOf(TextFieldValue("")) }
-    var longitude by remember { mutableStateOf(TextFieldValue("")) }
-    var dimension by remember { mutableStateOf(TextFieldValue("")) }
+    var latitude by remember { mutableStateOf(Double.NaN) }
+    var longitude by remember { mutableStateOf(Double.NaN) }
+    var dimension by remember { mutableStateOf(Double.NaN) }
+
+    val hasLocationPermission by gardenScreenViewModel.hasLocationPermission.collectAsState()
+    val currentLocation by gardenScreenViewModel.currentLocation.collectAsState()
+    var isUpdatingLocation by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val activity = context as ComponentActivity
+
+    // Handle permission result
+    val permissionLauncher = LocationUtils.rememberLocationPermissionLauncher { isGranted ->
+        gardenScreenViewModel.updatePermissionStatus(isGranted)
+    }
+    LaunchedEffect(Unit) {
+        gardenScreenViewModel.checkInitialPermission(activity)
+    }
 
     Column(
         modifier = Modifier
@@ -313,43 +331,77 @@ fun CreateGarden(
             style = MaterialTheme.typography.headlineMedium
         )
 
-        OutlinedTextField(
+        TextField(
             value = name,
             onValueChange = { name = it },
             label = { Text("Garden Name") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(
-            value = latitude,
-            onValueChange = { latitude = it },
+        TextField(
+            value = if(latitude.isNaN().not()){ latitude.toString()} else {
+                ""
+            },
+            onValueChange = { latitude = it.toDoubleOrNull() ?: latitude },
             label = { Text("Latitude") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(
-            value = longitude,
-            onValueChange = { longitude = it },
+        TextField(
+            value = if(longitude.isNaN().not()){ longitude.toString()} else {
+                ""
+            },
+            onValueChange = { longitude = it.toDoubleOrNull() ?: longitude },
             label = { Text("Longitude") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
 
-        OutlinedTextField(
-            value = dimension,
-            onValueChange = { dimension = it },
+        TextField(
+            value = if(dimension.isNaN().not()){ dimension.toString()} else {
+                ""
+            },
+            onValueChange = { dimension = it.toDoubleOrNull() ?: dimension },
             label = { Text("Dimension (sq. meters)") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
+
+        if (hasLocationPermission) {
+            Button(onClick = {
+                isUpdatingLocation = true
+                gardenScreenViewModel.fetchCurrentLocation(activity) }) {
+                Text("Get Current Location")
+            }
+
+            if (isUpdatingLocation && currentLocation != null) {
+                currentLocation?.let { (latitude_input, longitude_input) ->
+                    // Only update if `isUpdatingLocation` is true
+
+                    latitude = latitude_input
+                    longitude = longitude_input
+                    isUpdatingLocation = false // Reset after updating
+                }
+
+            }
+        } else {
+            Button(onClick = {
+                gardenScreenViewModel.requestLocationPermission(activity, permissionLauncher)
+            }) {
+                Text("Request Location Permission")
+            }
+        }
 
         Button(
             onClick = {
                 // Parse and validate input fields
                 val gardenName = name.text.trim()
-                val gardenLatitude = latitude.text.toDoubleOrNull()
-                val gardenLongitude = longitude.text.toDoubleOrNull()
-                val gardenDimension = dimension.text.toDoubleOrNull()
+                val gardenLatitude = latitude
+                val gardenLongitude = longitude
+                val gardenDimension = dimension
 
-                if (gardenName.isNotBlank() && gardenLatitude != null && gardenLongitude != null && gardenDimension != null) {
+                if (gardenName.isNotBlank() && gardenLatitude.isNaN().not() && gardenLongitude.isNaN().not() && gardenDimension.isNaN().not()) {
                     val newGarden = Garden(
                         name = gardenName,
                         latitude = gardenLatitude,

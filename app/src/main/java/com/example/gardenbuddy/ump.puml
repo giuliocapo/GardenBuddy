@@ -27,8 +27,8 @@ package "data" {
       - latitude : Double
       - longitude : Double
       - dimension : Double
-      - photos : List<ByteArray>
-      - user_id : Long
+      - photos : List<String>
+      - user_id : String
       --
       + getId() : String
       + getName() : String
@@ -57,7 +57,7 @@ package "data" {
     }
 
     class GardenPlant {
-      - photos : List<ByteArray>
+      - photos : List<String>
       - gardenId : Long
       - plantId : Long
       --
