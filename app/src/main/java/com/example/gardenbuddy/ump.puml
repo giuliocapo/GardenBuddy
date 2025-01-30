@@ -7,17 +7,32 @@ title GardenBuddy - MVVM UML Diagram
 package "data" {
 
   package "api" {
+
     class OpenWeatherMapService {
       + getWeatherData(location : String) : WeatherData
     }
 
-    class PlantRecognitionService {
-      + recognizePlant(photo : Bitmap) : String
+    class GardenApiService {
+      + getGardenById(@Path("userId") userId: String): Response<Garden>
+      + getGardenByGardenId(@Path("gardenId") gardenId: Long): Response<Garden>
+      + createGarden(@Body garden: Garden): Response<ApiResponse<Garden>>
+      + updateGarden(@Path("gardenId") gardenId: Long, @Body garden: Garden): Response<ApiResponse<Garden>>
+      + deleteGarden(@Path("gardenId") gardenId: Long): Response<ApiResponse<Garden>>
     }
 
-    class PlantInformationService {
-          + getInfoByName(name : String) : List<String>
-        }
+    class GardenPlantApiService {
+      + getGardenPlantsByGardenId(@Path("gardenId") gardenId: Long): Response<List<GardenPlant>>
+      + getGardenPlantByGardenIdAndPlantId(@Path("gardenId") gardenId: Long, @Path("plantId") plantId: Long): Response<GardenPlant>
+      + createGardenPlant(@Body gardenPlant: CreategardenplantDTO): Response<ApiResponse<GardenPlant>>
+      + updateGardenPlant(@Path("gardenId") gardenId: Long, @Path("plantId") plantId: Long, @Body body: UpdateGardenPlantRequest): Response<ApiResponse<GardenPlant>>
+      + deleteGardenPlant(@Path("gardenId") gardenId: Long, @Path("plantId") plantId: Long): Response<ApiResponse<GardenPlant>>
+    }
+
+    class PlantApiService {
+      + searchPlantByName(@Query("name") name: String, @Query("limit") limit: Int = 1) : Response<ResponseDto>
+      + searchPlantByPhoto(@Body request : SearchPhotoRequest): Response<ResponseDto>
+      + getPlantById(@Path("plantId") plantId: Long) : Response<Plant>
+    }
   }
 
   package "models" {
@@ -97,11 +112,12 @@ package "data" {
   }
 
   package "repositories" {
-    class GardenRepository {
 
-      + loadGarden(gardenId : Long) : Garden
-      + saveGarden(garden : Garden) : Garden
-      + deleteGarden(gardenId : Long) : String
+    class GardenRepository {
+      + loadGarden(userId: String): Result<Garden>
+      + loadGardenByGardenId(gardenId: Long): Result<Garden>
+      + saveGarden(garden : Garden) : Result<Garden>
+      + updateGarden(gardenId : Long, garden : Garden) : Result<Garden>
     }
 
     class WeatherRepository {
@@ -109,16 +125,17 @@ package "data" {
     }
 
     class PlantRepository {
-      + fetchPlantData(photo : Bitmap) : Plant
-      + fetchPlantData(name : String) : Plant
+      + loadPlant(plantId : Long) : Result<Plant>
+      + searchPlant(photo: String, latitude: Double, longitude: Double): Result<List<Plant>>
+      + searchPlant(name : String) : Result<List<Plant>>
     }
 
     class GardenPlantRepository {
-      + loadGardenPlant(PlantId : Long, GardenId : Long) : Pair<Plant, List<Bitmap>>
-      + removePlant(plantId : Long, gardenId : Long) : String
-      + addPlant(plantId : Long, gardenId : Long, photos : List<Bitmap>) : GardenPlant
-      + loadGardenPlants(gardenId : Long) : Result<List<Pair<Plant, List<Bitmap>>>>
-      + removeAllPlants(gardenId : Long) : Result<String>
+      + loadGardenPlant(plantId: Long, gardenId: Long): Result<Pair<Plant, List<String>>>
+      + loadGardenPlantsById(gardenId : Long) : Result<List<Pair<Plant, List<String>>>>
+      + updateGardenPlant(gardenId : Long, plantId : Long, photos : List<String>) : Result<GardenPlant>
+      + removePlant(plantId : Long, gardenId : Long) : Result<String>
+      + addPlant(plantId : Long, gardenId : Long, photos : List<String>) : Result<GardenPlant>
     }
 
     class AuthRepository {
@@ -144,20 +161,26 @@ package "ui" {
       + showGarden(gardenId : Long)
     }
     class GardenScreenViewModel {
-      + loadGarden(gardenId : Long)
-      + saveGarden(garden : Garden)
-      + deleteGarden(gardenId : Long)
-      + removePlant(plantId : Long)
-      + addPlant(plantId : Long, gardenId : Long, photos : List<Bitmap>)
+      + requestLocationPermission()
+      + updatePermissionStatus(isGranted: Boolean)
+      + fetchCurrentLocation(activity: ComponentActivity)
+      + checkInitialPermission(activity: ComponentActivity)
       + loadGardenPlants(gardenId : Long)
+      + loadGarden(userId : String)
+      + saveGarden(garden : Garden)
+      + updateGarden(gardenId : Long, garden : Garden)
+      + updateGardenPlant(gardenId : Long, plantId : Long, photos : List<String>)
+      + getGardenCoordinates(gardenId : Long)
+      + removePlant(plantId : Long, gardenId : Long)
+      + addPlant(plantId : Long, gardenId : Long, photos : List<String>)
     }
 
     class PlantScreen {
       + showPlant(PlantId : Long)
     }
     class PlantScreenViewModel {
-      + loadPlant(PlantId : Long)
-      + searchPlant(photo : Bitmap)
+      + searchPlant(photo : String, latitude : Double, longitude : Double)
+      + searchPlant(name : String)
       + searchPlant(name : String)
     }
 
@@ -225,12 +248,11 @@ PlantScreenViewModel --> PlantRepository : uses
 GardenRepository --> FirebaseInitializer : uses (CRUD gardens)
 AuthRepository --> FirebaseInitializer : uses (login/registration)
 WeatherRepository --> OpenWeatherMapService : uses
-PlantRepository --> PlantRecognitionService : uses
-PlantRepository --> PlantInformationService : uses
+GardenRepository --> GardenApiService : uses
+GardenPlantRepository --> GardenPlantApiService : uses
+PlantRepository --> PlantApiService : uses
+GardenPlantRepository --> PlantApiService : uses
 
-GardenPlantRepository --> PlantRepository : uses
-
-GardenRepository --> PlantInformationService : uses
 
 ' ------------------ Esempio di relazioni con SensorUtils (GPS/Accelerometro) ---------
 SensorUtils -[hidden]--> HomeScreenViewModel

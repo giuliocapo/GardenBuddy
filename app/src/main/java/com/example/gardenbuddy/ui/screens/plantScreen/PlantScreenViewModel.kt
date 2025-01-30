@@ -26,24 +26,6 @@ class PlantScreenViewModel : ViewModel() {
 
 
 
-    // implement this stuffs in the repository file
-
-    /*fun loadPlant(PlantId : Long){
-
-        viewModelScope.launch {
-            _isLoading.value = true
-            val result = PlantRepository.loadPlant(PlantId)
-            _isLoading.value = false
-
-            result.onSuccess { plant ->
-                _plantLoadSuccess.value = plant
-            }.onFailure { error ->
-                _errorMessage.value = error.localizedMessage ?: "Unknown error"
-            }
-        }
-
-    }*/
-
     // there isn't the add, because is handled automatically in the BE
 
     fun clearSearchResults(){

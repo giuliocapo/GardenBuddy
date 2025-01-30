@@ -3,9 +3,7 @@ package com.example.gardenbuddy.data.ApiInterfaces
 import com.example.gardenbuddy.data.Dtos.requests.CreategardenplantDTO
 import com.example.gardenbuddy.data.Dtos.requests.UpdateGardenPlantRequest
 import com.example.gardenbuddy.data.Dtos.responses.ApiResponse
-import com.example.gardenbuddy.data.models.Garden
 import com.example.gardenbuddy.data.models.GardenPlant
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.*
 

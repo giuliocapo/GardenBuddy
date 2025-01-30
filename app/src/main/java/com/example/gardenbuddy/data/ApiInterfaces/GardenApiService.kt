@@ -22,5 +22,4 @@ interface GardenApiService {
     @DELETE("gardens/{gardenId}")
     suspend fun deleteGarden(@Path("gardenId") gardenId: Long): Response<ApiResponse<Garden>>
 
-
 }

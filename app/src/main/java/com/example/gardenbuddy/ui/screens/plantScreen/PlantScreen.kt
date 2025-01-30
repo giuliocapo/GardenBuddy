@@ -1,13 +1,9 @@
 package com.example.gardenbuddy.ui.screens.plantScreen
 
-import android.content.Context
-import android.graphics.Bitmap
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -17,13 +13,10 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,18 +34,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.example.gardenbuddy.data.models.GardenPlant
 import com.example.gardenbuddy.data.models.Plant
-import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreenViewModel
 import com.example.gardenbuddy.ui.screens.photosscreen.CameraButton
 
 @Composable
 fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(), gardenId: Long, gardenScreenViewModel: GardenScreenViewModel) {
+
     var searchQuery by remember { mutableStateOf("") }
     val plantSearchSuccess by plantScreenViewModel.plantSearchSuccess.collectAsState()
     val isLoading by plantScreenViewModel.isLoading.collectAsState()
@@ -60,7 +50,6 @@ fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(),
     val errorMessage by plantScreenViewModel.errorMessage.collectAsState()
     var showCamera by remember { mutableStateOf(false) }
     val gardenCoordinates by gardenScreenViewModel.gardencoordinatesSuccess.observeAsState()
-
 
     LaunchedEffect(gardenId) {
         gardenScreenViewModel.getGardenCoordinates(gardenId)
@@ -76,22 +65,18 @@ fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(),
                 label = { Text("Search plants") },
                 trailingIcon = {
                     Row {
-
                         if (searchQuery.isBlank() && (gardenCoordinates?.first
                                 ?: 0.0) != 0.0 && (gardenCoordinates?.second ?: 0.0) != 0.0
                         ) {
                             IconButton(onClick = {
-                                // call the camera function
                                 if (!showCamera) showCamera = true
                             }) {
                                 Icon(
-                                    imageVector = Icons.Default.CameraAlt, // TODO change the icon
+                                    imageVector = Icons.Default.CameraAlt,
                                     contentDescription = "Camera"
                                 )
                             }
                         }
-
-                        // Search icon (appears when search query is non-empty)
                         if (searchQuery.isNotBlank()) {
                             IconButton(onClick = {
                                 plantScreenViewModel.searchPlant(searchQuery)
@@ -106,18 +91,15 @@ fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(),
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-
             Spacer(modifier = Modifier.height(16.dp))
             if (errorMessage.isNotEmpty()) {
                 Text(text = errorMessage)
             }
-
             if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             } else {
                 plantSearchSuccess?.let { plants ->
-                    // Iterate over each plant in the list and display the PlantCardContent
-                    LazyColumn { // Using LazyColumn for a more efficient rendering of lists
+                    LazyColumn {
                         items(plants) { plant ->
                             PlantCardContent(
                                 plant = plant,
@@ -132,7 +114,6 @@ fun PlantSearchSection(plantScreenViewModel: PlantScreenViewModel = viewModel(),
     }
     if (showCamera) {
         CameraButton(
-            gardenScreenViewModel = gardenScreenViewModel,
             gardenId,
             0L, // unused param
             onDismiss = { showCamera = false },
@@ -149,20 +130,18 @@ fun PlantCardContent(
     gardenScreenViewModel: GardenScreenViewModel,
     gardenId: Long
 ) {
-    //val gardenPlants by gardenScreenViewModel.gardenplantsLoadSuccess.collectAsState()
-    val gardenPlants by gardenScreenViewModel.gardenplantsSuccess.observeAsState()
 
+    val gardenPlants by gardenScreenViewModel.gardenplantsSuccess.observeAsState()
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp)
             .shadow(4.dp, shape = MaterialTheme.shapes.medium)
-            .heightIn(max = 250.dp), // Adjusting the card height
+            .heightIn(max = 250.dp),
         shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Plant Name at the top center
             Text(
                 text = "Plant Name: ${plant.scientificName}",
                 style = MaterialTheme.typography.bodyMedium,
@@ -170,10 +149,7 @@ fun PlantCardContent(
                     .fillMaxWidth()
                     .wrapContentWidth(Alignment.CenterHorizontally)
             )
-
             Spacer(modifier = Modifier.height(4.dp))
-
-            // Two-column layout for the other text fields
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -188,10 +164,7 @@ fun PlantCardContent(
                     Text(text = "Parent: ${plant.parent}", style = MaterialTheme.typography.bodySmall)
                 }
             }
-
             Spacer(modifier = Modifier.height(8.dp))
-
-            // Add button at the bottom center
             Button(
                 onClick = {
                     gardenScreenViewModel.addPlant(plant.plantId, gardenId, emptyList())
@@ -199,7 +172,7 @@ fun PlantCardContent(
                 enabled = gardenPlants?.none { it.first.plantId == plant.plantId } ?: true,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .fillMaxWidth(0.5f) // Make the button smaller than full width
+                    .fillMaxWidth(0.5f)
             ) {
                 Text("Add")
             }

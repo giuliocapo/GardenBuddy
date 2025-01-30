@@ -28,7 +28,6 @@ object LocationUtils {
     }
 
     fun requestLocationPermissions(
-        activity: ComponentActivity,
         permissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
     ) {
         // Always launch permission request, regardless of previous denials

@@ -1,9 +1,7 @@
 package com.example.gardenbuddy.ui.screens.gardenscreen
 
 import android.Manifest
-import android.app.Activity
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.core.content.ContextCompat
@@ -14,12 +12,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.gardenbuddy.data.models.Garden
 import com.example.gardenbuddy.data.models.GardenPlant
 import com.example.gardenbuddy.data.models.Plant
-import com.example.gardenbuddy.data.repositories.AuthRepository
 import com.example.gardenbuddy.data.repositories.GardenPlantRepository
 import com.example.gardenbuddy.data.repositories.GardenRepository
 import com.example.gardenbuddy.data.repositories.PlantRepository
 import com.example.gardenbuddy.utils.LocationUtils
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -42,23 +38,14 @@ class GardenScreenViewModel : ViewModel() {
     private val _gardenplantLoadSuccess = MutableStateFlow<Pair<Plant, List<String>>?>(null)
     val gardenplantLoadSuccess = _gardenplantLoadSuccess.asStateFlow()
 
-
     private val _gardenLoadSuccess = MutableStateFlow<Garden?>(null)
     val gardenLoadSuccess = _gardenLoadSuccess.asStateFlow()
-
-    private val _gardenSaveSuccess = MutableStateFlow<Garden?>(null)
-    val gardenSaveSuccess = _gardenSaveSuccess.asStateFlow()
-
-    private val _gardenDeleteSuccess = MutableStateFlow<String?>(null)
-    val gardenDeleteSuccess = _gardenDeleteSuccess.asStateFlow()
-
 
     private val _plantRemoveSuccess = MutableStateFlow<String?>(null)
     val plantRemoveSuccess = _plantRemoveSuccess.asStateFlow()
 
     private val _plantAddSuccess = MutableStateFlow<GardenPlant?>(null)
     val plantAddSuccess = _plantAddSuccess.asStateFlow()
-
 
     private val _gardenplantsSuccess = MutableLiveData<List<Pair<Plant, List<String>>>?>(emptyList())
     val gardenplantsSuccess: LiveData<List<Pair<Plant, List<String>>>?> = _gardenplantsSuccess
@@ -75,21 +62,21 @@ class GardenScreenViewModel : ViewModel() {
     private val _currentLocation = MutableStateFlow<Pair<Double, Double>?>(null)
     val currentLocation: MutableStateFlow<Pair<Double, Double>?> = _currentLocation
 
+
+
     /**
      * Request location permissions and update state based on the result.
      */
     fun requestLocationPermission(
-        activity: ComponentActivity,
         permissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
     ) {
-        LocationUtils.requestLocationPermissions(activity, permissionLauncher)
+        LocationUtils.requestLocationPermissions(permissionLauncher)
     }
 
     /**
      * Update permission status when the result is received.
      */
     fun updatePermissionStatus(isGranted: Boolean) {
-        println("isGranted: $isGranted")
         _hasLocationPermission.value = isGranted
     }
 
@@ -110,7 +97,6 @@ class GardenScreenViewModel : ViewModel() {
             activity,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-
         _hasLocationPermission.value = isGranted
     }
 
@@ -119,11 +105,9 @@ class GardenScreenViewModel : ViewModel() {
 
     fun loadGardenPlants(gardenId : Long){
         _gardenPlantsisLoading.value = true
-        // now charge the Gardenplants
         viewModelScope.launch {
             val result = GardenPlantRepository.loadGardenPlantsById(gardenId)
             result.onSuccess { List ->
-                //_gardenplantsLoadSuccess.value = List
                 _gardenplantsSuccess.value = List
                 _gardenPlantsisLoading.value = false
             }.onFailure { error ->
@@ -137,7 +121,6 @@ class GardenScreenViewModel : ViewModel() {
         _gardenPlantsisLoading.value = true
         viewModelScope.launch {
             val result = GardenPlantRepository.loadGardenPlant(plantId, gardenId)
-
             result.onSuccess { plant ->
                 _gardenplantLoadSuccess.value = plant
                 _gardenPlantsisLoading.value = false
@@ -152,7 +135,6 @@ class GardenScreenViewModel : ViewModel() {
         _gardenPlantsisLoading.value = true
         viewModelScope.launch {
             val result = GardenPlantRepository.removeAllPlants(gardenId)
-
             result.onSuccess { result ->
                 _plantRemoveSuccess.value = result
                 _gardenPlantsisLoading.value = false
@@ -225,8 +207,6 @@ class GardenScreenViewModel : ViewModel() {
         viewModelScope.launch {
             val result = GardenPlantRepository.updateGardenPlant(gardenId, plantId, photos)
             result.onSuccess { gardenPlant ->
-
-                //_gardenplantsLoadSuccess.value = _gardenplantsLoadSuccess.value?.map { pair ->
                 _gardenplantsSuccess.value = _gardenplantsSuccess.value?.map { pair ->
                     if (pair.first.plantId == plantId) {
                         // Update the photos for the matching plant
@@ -256,20 +236,6 @@ class GardenScreenViewModel : ViewModel() {
             }
         }
     }
-
-
-    /*fun deleteGarden(gardenId : Long){
-        _isLoading.value = true
-        viewModelScope.launch {
-            val result = GardenRepository.deleteGarden(gardenId)
-            result.onSuccess { message ->
-                _gardenDeleteSuccess.value = message
-                _isLoading.value = false
-            }.onFailure { error ->
-                _errorMessage.value = error.message ?: "An error occurred"
-            }
-        }
-    }*/
 
     fun removePlant(plantId : Long, gardenId : Long){
         // TODO understand why the ui doesn't update the gardenplantsLoadSuccess

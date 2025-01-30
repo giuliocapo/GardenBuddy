@@ -30,24 +30,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
-import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreenViewModel
 import java.io.ByteArrayOutputStream
 
 
 @Composable
 fun CameraButton(
-    gardenScreenViewModel: GardenScreenViewModel,
     gardenId : Long,
     plantId : Long,
     onDismiss: () -> Unit,
     onSavePhotoClick: (gardenId : Long, plantId : Long, photos : List<String>) -> Unit // New parameter to handle the save photo action
 
 ) {
+
     var showPhotoDialog by remember { mutableStateOf(false) }
     var capturedPhotoBase64 by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
-    // Camera launcher
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap: Bitmap? ->
@@ -59,22 +57,16 @@ fun CameraButton(
             showPhotoDialog = true
         }
     }
-
-    // Permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Permission granted, launch camera
             cameraLauncher.launch(null)
         } else {
-            // Permission denied, dismiss
             onDismiss()
         }
     }
 
-
-    // Launch camera immediately
     LaunchedEffect(Unit) {
         when (PackageManager.PERMISSION_GRANTED) {
             ContextCompat.checkSelfPermission(

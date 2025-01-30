@@ -1,17 +1,13 @@
 package com.example.gardenbuddy.data.repositories
 
-import android.graphics.Bitmap
 import com.example.gardenbuddy.data.Dtos.requests.CreategardenplantDTO
 import com.example.gardenbuddy.data.Dtos.requests.UpdateGardenPlantRequest
 import com.example.gardenbuddy.data.models.GardenPlant
 import com.example.gardenbuddy.data.models.Plant
 import com.example.gardenbuddy.utils.RetrofitClient
-import com.example.gardenbuddy.utils.bitmapConverter
 
 
 object GardenPlantRepository {
-
-
 
     suspend fun loadGardenPlant(plantId: Long, gardenId: Long): Result<Pair<Plant, List<String>>> {
         return try {
@@ -37,7 +33,6 @@ object GardenPlantRepository {
         } catch (e: Exception) {
             Result.failure(e)
         }
-
     }
 
     suspend fun loadGardenPlantsById(gardenId : Long) : Result<List<Pair<Plant, List<String>>>> {
@@ -108,7 +103,7 @@ object GardenPlantRepository {
     }
 
     suspend fun removeAllPlants(gardenId : Long) : Result<String> {
-        // TODO implement
+        // TODO implement (if needed)
         return Result.success("Plants removed")
 
     }

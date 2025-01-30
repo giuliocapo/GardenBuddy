@@ -92,12 +92,8 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
             ActivityBoardScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
             Text("Social screen")
         }
-        composable(
-            route = "garden_details/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.LongType })
-        ) { backStackEntry ->
-            val gardenId = backStackEntry.arguments?.getLong("id")!!
-            GardenDetailsScreen(navController = navController, gardenId = gardenId, sharedUserViewModel = sharedUserViewModel, gardenScreenViewModel = gardenScreenViewModel, plantScreenViewModel = plantScreenViewModel)
+        composable("garden_details/{id}") {
+            GardenDetailsScreen(navController = navController, sharedUserViewModel = sharedUserViewModel, gardenScreenViewModel = gardenScreenViewModel, plantScreenViewModel = plantScreenViewModel)
         }
     }
 }
