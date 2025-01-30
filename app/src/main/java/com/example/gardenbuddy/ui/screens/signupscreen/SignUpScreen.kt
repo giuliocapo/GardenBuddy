@@ -28,7 +28,7 @@ fun SignUpScreen(
     LaunchedEffect(signUpSuccess) {
         signUpSuccess?.let { user ->
             sharedUserViewModel.setUser(user)
-            navController.navigate("userProfile/${user.userId}") {
+            navController.navigate("userProfile") {
                 // Rimuove la SignUpScreen dallo stack
                 popUpTo("signUp") { inclusive = true }
             }

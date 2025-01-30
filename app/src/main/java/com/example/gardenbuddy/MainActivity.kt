@@ -82,7 +82,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable("home") {
             HomeScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
         }
-        composable("userProfile/{userId}") {
+        composable("userProfile") {
             UserProfileScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
         }
         composable("garden") {
