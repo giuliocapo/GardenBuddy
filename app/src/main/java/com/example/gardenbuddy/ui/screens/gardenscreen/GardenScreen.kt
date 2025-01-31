@@ -58,13 +58,8 @@ fun GardenScreen(
 
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(
-                navController = navController,
-                selectedTab = selectedTab.value,
-                sharedUserViewModel = sharedUserViewModel
-            ) { tab ->
-                selectedTab.value = tab
-                navController.navigate(tab)
+            BottomNavigationBar(navController = navController, sharedUserViewModel = sharedUserViewModel, selectedTab = selectedTab.value) {
+                selectedTab.value = it
             }
         },
         content = { innerPadding ->

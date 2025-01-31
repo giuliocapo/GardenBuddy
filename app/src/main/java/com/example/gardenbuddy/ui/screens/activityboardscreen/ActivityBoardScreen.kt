@@ -44,13 +44,8 @@ fun ActivityBoardScreen(
 
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(
-                navController = navController,
-                sharedUserViewModel = sharedUserViewModel,
-                selectedTab = selectedTab.value
-            ) { tab ->
-                selectedTab.value = tab
-                navController.navigate(tab) // Cambia schermata al cambio di tab
+            BottomNavigationBar(navController = navController, sharedUserViewModel = sharedUserViewModel, selectedTab = selectedTab.value) {
+                selectedTab.value = it
             }
         },
         content = { innerPadding ->
