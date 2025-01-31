@@ -42,7 +42,7 @@ fun HomeScreen(navController: NavHostController, sharedUserViewModel: SharedUser
         },
 
         bottomBar = {
-            BottomNavigationBar(navController = navController, selectedTab = selectedTab.value) {
+            BottomNavigationBar(navController = navController, sharedUserViewModel = sharedUserViewModel, selectedTab = selectedTab.value) {
                 selectedTab.value = it
             }
         }

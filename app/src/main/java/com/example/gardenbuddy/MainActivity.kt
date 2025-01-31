@@ -82,8 +82,24 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         composable("home") {
             HomeScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
         }
-        composable("userProfile") {
-            UserProfileScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
+        composable(
+            route = "userProfile/{userId}",
+            arguments = listOf(
+                navArgument("userId") {
+                    type = NavType.StringType
+                    // Se vuoi un valore di default, lo metti qui
+                    // defaultValue = "qualcosa"
+                }
+            )
+        ) { backStackEntry ->
+            val userIdArg = backStackEntry.arguments?.getString("userId") ?: ""
+
+            // Passi userIdArg alla tua screen
+            UserProfileScreen(
+                navController = navController,
+                sharedUserViewModel = sharedUserViewModel,
+                displayedUserId = userIdArg
+            )
         }
         composable("garden") {
             GardenScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)

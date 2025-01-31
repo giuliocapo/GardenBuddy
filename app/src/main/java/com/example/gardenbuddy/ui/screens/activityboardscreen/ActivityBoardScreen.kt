@@ -2,6 +2,7 @@ package com.example.gardenbuddy.ui.screens.activityboardscreen
 
 
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -45,6 +46,7 @@ fun ActivityBoardScreen(
         bottomBar = {
             BottomNavigationBar(
                 navController = navController,
+                sharedUserViewModel = sharedUserViewModel,
                 selectedTab = selectedTab.value
             ) { tab ->
                 selectedTab.value = tab
@@ -70,7 +72,7 @@ fun ActivityBoardScreen(
                 // Lista delle attività
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(activities.value) { activity ->
-                        ActivityCard(activity)
+                        ActivityCard(activity, navController)
                     }
                 }
             }
@@ -79,11 +81,16 @@ fun ActivityBoardScreen(
 }
 
 @Composable
-fun ActivityCard(activity: Activity) {
+fun ActivityCard(activity: Activity , navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable {
+
+                // Quando clicchi sulla card, navighi al profilo di quell'utente
+                navController.navigate("userProfile/${activity.userId}")
+            },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary
         ),
@@ -124,6 +131,6 @@ fun ActivityCardPreview() {
             calories = 200,
             timestamp = System.currentTimeMillis()
         )
-        ActivityCard(activity = mockActivity)
+        ActivityCard(activity = mockActivity , navController = rememberNavController())
     }
 }

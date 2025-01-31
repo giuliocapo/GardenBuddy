@@ -22,11 +22,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.res.painterResource
 import com.example.gardenbuddy.R
+import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 
 
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController,
+    sharedUserViewModel: SharedUserViewModel,
     selectedTab: String,
     onTabSelected: (String) -> Unit
 ) {
@@ -80,7 +82,12 @@ fun BottomNavigationBar(
             selected = selectedTab == "userProfile",
             onClick = {
                 onTabSelected("userProfile")
-                navController.navigate("userProfile") {
+
+                // Recupera userId dell’utente loggato (se esiste)
+                val loggedUserId = sharedUserViewModel.user.value?.userId ?: ""
+                println("Logged User ID: $loggedUserId")
+
+                navController.navigate("userProfile/$loggedUserId") {
                     popUpTo(navController.graph.startDestinationId) { saveState = true }
                     launchSingleTop = true
                     restoreState = true

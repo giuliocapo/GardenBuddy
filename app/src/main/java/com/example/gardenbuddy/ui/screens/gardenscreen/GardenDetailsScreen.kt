@@ -51,6 +51,7 @@ fun GardenDetailsScreen(
     bottomBar = {
         BottomNavigationBar(
             navController = navController,
+            sharedUserViewModel = sharedUserViewModel,
             selectedTab = selectedTab.value
         ) { tab ->
             selectedTab.value = tab

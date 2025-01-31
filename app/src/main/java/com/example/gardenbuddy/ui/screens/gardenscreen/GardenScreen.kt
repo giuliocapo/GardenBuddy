@@ -60,7 +60,8 @@ fun GardenScreen(
         bottomBar = {
             BottomNavigationBar(
                 navController = navController,
-                selectedTab = selectedTab.value
+                selectedTab = selectedTab.value,
+                sharedUserViewModel = sharedUserViewModel
             ) { tab ->
                 selectedTab.value = tab
                 navController.navigate(tab)
