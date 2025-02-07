@@ -17,11 +17,13 @@ import android.util.Log
 import com.example.gardenbuddy.data.models.Activity
 import com.example.gardenbuddy.data.models.User
 import com.example.gardenbuddy.data.repositories.ActivityBoardRepository
+import java.sql.Date
+import java.time.LocalDate
 
 
 class GardeningMonitoringViewModel(application: Application, user: User) : AndroidViewModel(application) {
 
-
+    private val loggedUser = user
     private val _steps = MutableLiveData<Int>(0)
     val steps: LiveData<Int> = _steps
 
@@ -30,6 +32,12 @@ class GardeningMonitoringViewModel(application: Application, user: User) : Andro
 
     private val _sessionStartTime = MutableLiveData<Long?>(null)
     val sessionStartTime: LiveData<Long?> = _sessionStartTime
+
+    private val _sessionSeconds = MutableLiveData<Int>(0)
+    val sessionSeconds: LiveData<Int> = _sessionSeconds
+
+    private val _sessionMinutes = MutableLiveData<Int>(0)
+    val sessionMinutes: LiveData<Int> = _sessionMinutes
 
     private val _isMonitoringActive = MutableLiveData<Boolean>(false)
     val isMonitoringActive: LiveData<Boolean> = _isMonitoringActive
@@ -71,7 +79,9 @@ class GardeningMonitoringViewModel(application: Application, user: User) : Andro
                 delay(1000)
                 Log.d("GardeningViewModel", "isBound=$isBound, gardeningService=$gardeningService")
                 if (isBound && gardeningService != null) {
-
+                    val secondsElapsed = (System.currentTimeMillis() - _sessionSeconds.value!!) / 1000
+                    _sessionMinutes.postValue(((secondsElapsed % 3600) / 60).toInt())
+                    _sessionSeconds.postValue((secondsElapsed % 60).toInt())
                     _steps.postValue(gardeningService!!.steps)
                     _kcalBurned.postValue(gardeningService!!.kcalBurned)
                     Log.d("GardeningViewModel", "Polling: steps=${gardeningService!!.steps}, kcal=${gardeningService!!.kcalBurned}")
@@ -83,19 +93,27 @@ class GardeningMonitoringViewModel(application: Application, user: User) : Andro
     /**
      * Ferma il monitoraggio scollegando e fermando il service.
      */
-    fun stopMonitoring() {
+     fun stopMonitoring() {
         if (_isMonitoringActive.value != true) return
 
         val intent = Intent(getApplication(), GardeningMonitoringService::class.java)
-        //var newActivity = Activity(null, userId = user.)
-            getApplication<Application>().unbindService(serviceConnection)
-                    isBound = false
-                    _isMonitoringActive . value = false
-            if (getApplication<Application>().stopService(intent)) {
+        val newActivity = Activity(
+            id = null,
+            userId = loggedUser.userId,
+            username = loggedUser.name,
+            steps = _steps.value!!,
+            calories = _kcalBurned.value!!.toInt(),
+            minutes = _sessionMinutes.value!!,
+            timestamp = System.currentTimeMillis() - _sessionSeconds.value!!)
+        Log.d("GardeningViewModel", "Salvo sessione 1: $newActivity")
+        saveSession(loggedUser.userId, newActivity)
+        getApplication<Application>().unbindService(serviceConnection)
+                isBound = false
+                _isMonitoringActive . value = false
+        if (getApplication<Application>().stopService(intent)) {
 
-            }
-
-                    Log . d ("GardeningViewModel", "Monitoraggio fermato"
+        }
+        Log . d ("GardeningViewModel", "Monitoraggio fermato"
         )
     }
 
@@ -107,10 +125,12 @@ class GardeningMonitoringViewModel(application: Application, user: User) : Andro
         }
     }
 
-    fun saveSession(userId: String, activity: Activity) {
+    private fun saveSession(userId: String, activity: Activity) {
         viewModelScope.launch {
             try {
                 val newActivity = ActivityBoardRepository.addUserActivity(userId, activity)
+                Log.d("GardeningViewModel", "Salvo sessione 2: $activity")
+                Log.d("GardeningViewModel", "Sessione salvata: $activity")
 
             } catch (e: Exception) {
                 e.printStackTrace()

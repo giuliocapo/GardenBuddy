@@ -25,14 +25,17 @@ fun GardeningMonitoringScreen(user: User)
     val steps by viewModel.steps.observeAsState(0)
     val kcalBurned by viewModel.kcalBurned.observeAsState(0.0)
     val sessionStartTime by viewModel.sessionStartTime.observeAsState(null)
-
+    val sessionMinutes by viewModel.sessionMinutes.observeAsState(0)
+    val sessionSeconds by viewModel.sessionSeconds.observeAsState(0)
 
     if (isMonitoringActive) {
         GardeningSessionCard(
             steps = steps,
             kcalBurned = kcalBurned,
             sessionStartTime = sessionStartTime,
-            onStopMonitoring = { viewModel.stopMonitoring() }
+            onStopMonitoring = { viewModel.stopMonitoring()},
+            sessionMinutes = sessionMinutes,
+            sessionSeconds = sessionSeconds
         )
     } else {
         Card(
@@ -60,17 +63,19 @@ fun GardeningSessionCard(
     steps: Int,
     kcalBurned: Double,
     sessionStartTime: Long?,
+    sessionMinutes: Int,
+    sessionSeconds: Int,
     onStopMonitoring: () -> Unit
 ) {
     // Calcola il tempo trascorso, se disponibile
-    val elapsedTime by produceState(initialValue = 0L, sessionStartTime) {
-        while (true) {
-            sessionStartTime?.let {
-                value = (System.currentTimeMillis() - it) / 1000
-            }
-            delay(1000)
-        }
-    }
+//    val elapsedTime by produceState(initialValue = 0L, sessionStartTime) {
+//        while (true) {
+//            sessionStartTime?.let {
+//                value = (System.currentTimeMillis() - it) / 1000
+//            }
+//            delay(1000)
+//        }
+//    }
 
     Card(
         modifier = Modifier
@@ -87,7 +92,7 @@ fun GardeningSessionCard(
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = "Steps: $steps", style = MaterialTheme.typography.body1)
             Text(text = "Kcal Burned: %.2f".format(kcalBurned), style = MaterialTheme.typography.body1)
-            Text(text = "Time: ${elapsedTime}s", style = MaterialTheme.typography.body1)
+            Text(text = "Time: ${sessionMinutes}:${sessionSeconds}s", style = MaterialTheme.typography.body1)
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = onStopMonitoring) {
                 Text("Stop Session")
