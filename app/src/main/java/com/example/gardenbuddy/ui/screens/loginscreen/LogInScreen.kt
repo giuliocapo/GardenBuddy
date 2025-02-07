@@ -10,18 +10,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.gardenbuddy.ui.screens.LogInScreenViewModel
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
+import com.example.gardenbuddy.ui.theme.GardenBuddyTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogInScreen(
     navController: NavController,
@@ -47,56 +53,80 @@ fun LogInScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Text(text = "Log In")
+    GardenBuddyTheme(
+        darkTheme = true,
+        content = {
+            Column(
+                Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Log In")
 
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") }
-        )
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        // Colore del testo quando è in focus o no
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
 
-        Spacer(modifier = Modifier.height(8.dp))
+                        // Bordo quando è in focus o no
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = Color.Gray,
 
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") }
-        )
+                        // Label quando è in focus o no
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = Color.Gray,
+                    )
 
-        Spacer(modifier = Modifier.height(8.dp))
+                )
 
-        if (errorMessage.isNotEmpty()) {
-            Text(text = "Error: $errorMessage")
-        }
+                Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") }
+                )
 
-        Button(
-            onClick = { logInViewModel.logIn(email, password) },
-            enabled = !isLoading
-        ) {
-            Text(if (isLoading) "Loading..." else "Log In")
-        }
+                Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+                if (errorMessage.isNotEmpty()) {
+                    Text(text = "Error: $errorMessage")
+                }
 
-        Row(verticalAlignment = Alignment.CenterVertically){
-            HorizontalDivider(Modifier.width(50.dp))
-            Box(Modifier.padding(10.dp, 0.dp)){
-                Text("or")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { logInViewModel.logIn(email, password) },
+                    enabled = !isLoading
+                ) {
+                    Text(if (isLoading) "Loading..." else "Log In")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    HorizontalDivider(Modifier.width(50.dp))
+                    Box(Modifier.padding(10.dp, 0.dp)) {
+                        Text("or")
+                    }
+                    HorizontalDivider(Modifier.width(50.dp))
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Pulsante per navigare alla schermata Sign Up
+                Button(onClick = {
+                    navController.navigate("signUp")
+                }) {
+                    Text("Don't have an account? Sign Up")
+                }
             }
-            HorizontalDivider(Modifier.width(50.dp))
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Pulsante per navigare alla schermata Sign Up
-        Button(onClick = {
-            navController.navigate("signUp")
-        }) {
-            Text("Don't have an account? Sign Up")
-        }
-    }
+    )
 }
+
 

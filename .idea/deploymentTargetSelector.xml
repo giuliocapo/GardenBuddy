@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-01-30T15:19:30.892060800Z">
+        <DropdownSelection timestamp="2025-02-05T16:00:57.458859800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=8b031855" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=R3CT306LGYE" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -21,7 +21,7 @@
           </targets>
         </DialogSelection>
       </SelectionState>
-      <SelectionState runConfigName="UserProfileScreenPreview">
+      <SelectionState runConfigName="WeatherCardPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

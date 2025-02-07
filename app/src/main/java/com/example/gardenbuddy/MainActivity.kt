@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             // Usa darkTheme = false se desideri il tema chiaro
-            GardenBuddyTheme(darkTheme = true) {
+            GardenBuddyTheme(darkTheme = false) {
                 AppScaffold()
             }
         }

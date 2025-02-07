@@ -271,8 +271,7 @@ fun UserProfileContent(
                     // Testo quando è disabilitato
                     disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
                     disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
-
-                    )
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
