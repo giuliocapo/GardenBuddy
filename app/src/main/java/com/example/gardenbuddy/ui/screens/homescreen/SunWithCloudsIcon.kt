@@ -6,13 +6,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun AnimatedSunWithClouds(modifier: Modifier) {
+fun SunWithCloudsIcon(modifier: Modifier) {
     // Animazioni per il movimento delle nuvole
 //    val infiniteTransition = rememberInfiniteTransition()
 //    val cloudOffset1 by infiniteTransition.animateFloat(
@@ -49,9 +50,9 @@ fun AnimatedSunWithClouds(modifier: Modifier) {
 // Funzione per disegnare il sole
 fun DrawScope.drawSun(centerX: Float, centerY: Float, radius: Float) {
     drawCircle(
-        color = Color.Yellow,
+        color = Color(0xFFFBFF00),
         radius = radius,
-        center = androidx.compose.ui.geometry.Offset(centerX, centerY)
+        center = Offset(centerX, centerY)
     )
 }
 
@@ -59,18 +60,18 @@ fun DrawScope.drawSun(centerX: Float, centerY: Float, radius: Float) {
 fun DrawScope.drawCloud(offsetX: Float, centerY: Float) {
     val cloudRadius = 40f
     drawCircle(
-        color = Color.Gray,
+        color = Color(0xFFDED8D8),
         radius = cloudRadius,
-        center = androidx.compose.ui.geometry.Offset(offsetX, centerY)
+        center = Offset(offsetX, centerY)
     )
     drawCircle(
-        color = Color.Gray,
+        color = Color(0xFFDED8D8),
         radius = cloudRadius,
-        center = androidx.compose.ui.geometry.Offset(offsetX + 60, centerY)
+        center = Offset(offsetX + 60, centerY)
     )
     drawCircle(
-        color = Color.Gray,
+        color = Color(0xFFDED8D8),
         radius = cloudRadius,
-        center = androidx.compose.ui.geometry.Offset(offsetX + 30, centerY - 30)
+        center = Offset(offsetX + 30, centerY - 30)
     )
 }

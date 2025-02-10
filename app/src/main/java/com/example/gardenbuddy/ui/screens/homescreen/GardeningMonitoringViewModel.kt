@@ -14,11 +14,13 @@ import com.example.gardenbuddy.utils.GardeningMonitoringService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import android.util.Log
+import android.widget.Toast
 import com.example.gardenbuddy.data.models.Activity
 import com.example.gardenbuddy.data.models.User
 import com.example.gardenbuddy.data.repositories.ActivityBoardRepository
 import java.sql.Date
 import java.time.LocalDate
+import kotlin.math.floor
 
 
 class GardeningMonitoringViewModel(application: Application, user: User) : AndroidViewModel(application) {
@@ -79,11 +81,12 @@ class GardeningMonitoringViewModel(application: Application, user: User) : Andro
                 delay(1000)
                 Log.d("GardeningViewModel", "isBound=$isBound, gardeningService=$gardeningService")
                 if (isBound && gardeningService != null) {
-                    val secondsElapsed = (System.currentTimeMillis() - _sessionSeconds.value!!) / 1000
-                    _sessionMinutes.postValue(((secondsElapsed % 3600) / 60).toInt())
+                    val secondsElapsed = (System.currentTimeMillis() - _sessionStartTime.value!!) / 1000
+                    _sessionMinutes.postValue(floor((secondsElapsed / 60.0)).toInt())
                     _sessionSeconds.postValue((secondsElapsed % 60).toInt())
                     _steps.postValue(gardeningService!!.steps)
                     _kcalBurned.postValue(gardeningService!!.kcalBurned)
+                    Log.d("GardeningViewModel", "Polling: secondsElapsed=$secondsElapsed")
                     Log.d("GardeningViewModel", "Polling: steps=${gardeningService!!.steps}, kcal=${gardeningService!!.kcalBurned}")
                 }
             }
@@ -107,6 +110,7 @@ class GardeningMonitoringViewModel(application: Application, user: User) : Andro
             timestamp = System.currentTimeMillis() - _sessionSeconds.value!!)
         Log.d("GardeningViewModel", "Salvo sessione 1: $newActivity")
         saveSession(loggedUser.userId, newActivity)
+        Toast.makeText(getApplication(), "Session saved", Toast.LENGTH_SHORT).show()
         getApplication<Application>().unbindService(serviceConnection)
                 isBound = false
                 _isMonitoringActive . value = false

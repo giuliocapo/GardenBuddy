@@ -275,13 +275,5 @@ class GardenScreenViewModel : ViewModel() {
             }
         }
     }
-
-
-
-
-
-
-
-
 }
 

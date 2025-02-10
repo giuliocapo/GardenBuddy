@@ -1,9 +1,14 @@
 package com.example.gardenbuddy.ui.screens.homescreen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -16,17 +21,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 
-
 @Composable
-fun HomeScreen(navController: NavHostController, sharedUserViewModel: SharedUserViewModel) {
+fun HomeScreen(navController: NavHostController, sharedUserViewModel: SharedUserViewModel, weatherViewModel : WeatherViewModel = hiltViewModel()) {
 //  val navController = rememberNavController()
     val selectedTab = remember { mutableStateOf("home") }
     val user by sharedUserViewModel.user.collectAsState()
+    val weatherInfo by weatherViewModel.weatherInfo.collectAsState()
+    val weatherIconCode by weatherViewModel.weatherIconCode.collectAsState()
 
     Scaffold(
         Modifier.fillMaxSize(),
@@ -35,16 +45,26 @@ fun HomeScreen(navController: NavHostController, sharedUserViewModel: SharedUser
             Column(Modifier.fillMaxSize().padding(innerPadding),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ){
-                Text(text = "Welcome to GardenBuddy, ${user!!.name}!", color = Color.Black)
+                Row(Modifier.fillMaxWidth().padding(16.dp)){
+                    Text(text = "Welcome to GardenBuddy, ${user!!.name}!", color = Color.Black, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                }
+                weatherInfo?.let {
+                    weatherIconCode?.let { code ->
+                        WeatherCard(
+                            location = it.location,
+                            temperature = "${it.temperature.toInt()}°C",
+                            summary = it.description,
+                            weatherIcon = code,
+                            modifier = Modifier
+                        )
+                    }
 
-                WeatherCard(
-                    location = "Rome, Italy",
-                    temperature = "18°C",
-                    summary = "Sunny",
-                    modifier = Modifier
-                )
+                    GardeningMonitoringScreen(user!!, Modifier.weight(1f))
+                } ?:
+                Column (Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
+                    CircularProgressIndicator()
+                }
 
-                GardeningMonitoringScreen(user!!)
             }
         },
 
@@ -56,27 +76,27 @@ fun HomeScreen(navController: NavHostController, sharedUserViewModel: SharedUser
     )
 }
 
-@Composable
-fun SaveSessionDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Do you want to save the gardening session?") },
-        text = { Text("Do you want to save the gardening session data?") },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Save")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
+//@Composable
+//fun SaveSessionDialog(
+//    onDismiss: () -> Unit,
+//    onConfirm: () -> Unit
+//) {
+//    AlertDialog(
+//        onDismissRequest = onDismiss,
+//        title = { Text("Do you want to save the gardening session?") },
+//        text = { Text("Do you want to save the gardening session data?") },
+//        confirmButton = {
+//            TextButton(onClick = onConfirm) {
+//                Text("Save")
+//            }
+//        },
+//        dismissButton = {
+//            TextButton(onClick = onDismiss) {
+//                Text("Cancel")
+//            }
+//        }
+//    )
+//}
 
 @Preview
 @Composable
