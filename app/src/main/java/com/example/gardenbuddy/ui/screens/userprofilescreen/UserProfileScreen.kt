@@ -25,6 +25,11 @@ import java.util.*
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.launch
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Cancel
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -38,6 +43,7 @@ fun UserProfileScreen(
     viewModel: UserProfileScreenViewModel = viewModel()
 ) {
     val selectedTab = remember { mutableStateOf("userProfile") }
+    val isEditable by viewModel.isEditable.collectAsState()
 
     // userId dell'utente loggato
     val loggedUserId = sharedUserViewModel.user.value?.userId ?: "" // ?: Elvis operator per settare a "" qualora fosse null userId
@@ -85,7 +91,8 @@ fun UserProfileScreen(
                 onWeightChange = { weight = it },
                 birthDate = birthDate,
                 onBirthDateChange = { birthDate = it },
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                isEditable = isEditable
             )
         },
 
@@ -110,6 +117,7 @@ fun UserProfileContent(
     birthDate: String,
     onBirthDateChange: (String) -> Unit,
     viewModel: UserProfileScreenViewModel = viewModel(),
+    isEditable: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -121,63 +129,155 @@ fun UserProfileContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
-                .background(MaterialTheme.colorScheme.primary),
+                .height(24.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "User Profile",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-
+//                Text(
+//                    text = "User Profile",
+//                    style = MaterialTheme.typography.titleLarge,
+//                    color = MaterialTheme.colorScheme.onPrimary
+//                )
                 // Pulsante Salva
                 if (isOwner) {
+
                     // Recupera il Context per poter mostrare il Toast
                     val context = LocalContext.current
-
-                    TextButton(
-                        onClick = {
-                            try {
+                    if (!isEditable) {
+                        Row(Modifier.fillMaxWidth()){
+                            Spacer(Modifier.weight(1f))
+                            IconButton(onClick = { viewModel.toggleEditable() }) {
+                                Icon(
+                                    Icons.Rounded.Edit,
+                                    contentDescription = "Make profile editable"
+                                )
+                            }
+                        }
+                    }else{
+                        Row (Modifier.fillMaxWidth()) {
+                            Spacer(Modifier.weight(1f))
+                            IconButton(onClick = { viewModel.toggleEditable() }) {
+                                Icon(
+                                    Icons.Rounded.Cancel,
+                                    contentDescription = "Make profile not editable"
+                                )
+                            }
+                            IconButton(onClick = {try {
                                 val parsedWeight = weight.toDoubleOrNull()
                                 val parsedBirthDate =
                                     SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(
                                         birthDate
                                     )
                                 if (parsedWeight == null || parsedBirthDate == null) {
-                                    // Gestisci l'errore, es: messaggio di errore
-                                    return@TextButton
+                                    Toast.makeText(context, "Invalid input", Toast.LENGTH_SHORT).show()
                                 }
-                                viewModel.updateUserProfile(
+                                parsedWeight?.let {
                                     User(
                                         userId = userId,
                                         name = name,
-                                        weight = parsedWeight,
+                                        weight = it,
                                         email = email,
                                         birthdate = parsedBirthDate
                                     )
-                                )
+                                }?.let {
+                                    viewModel.updateUserProfile(
+                                        it
+                                    )
+                                }
+                                viewModel.toggleEditable()
                                 // Mostra il Toast dopo il salvataggio
                                 Toast.makeText(context, "Profilo aggiornato con successo!", Toast.LENGTH_SHORT).show()
 
                             } catch (e: Exception) {
                                 Log.e("UserProfileContent", "Error parsing input fields", e)
+                            }}){
+                                Icon(
+                                    Icons.Rounded.Check,
+                                    contentDescription = "Make profile not editable"
+                                )
                             }
                         }
-                    ) {
-                        Text(
-                            text = "Salva",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
+                        }
+
+//                    IconButton(onClick = {
+//                        try {
+//                            val parsedWeight = weight.toDoubleOrNull()
+//                            val parsedBirthDate =
+//                                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(
+//                                    birthDate
+//                                )
+//                            if (parsedWeight == null || parsedBirthDate == null) {
+//                                Toast.makeText(context, "Invalid input", Toast.LENGTH_SHORT).show()
+//                            }
+//                            parsedWeight?.let {
+//                                User(
+//                                    userId = userId,
+//                                    name = name,
+//                                    weight = it,
+//                                    email = email,
+//                                    birthdate = parsedBirthDate
+//                                )
+//                            }?.let {
+//                                viewModel.updateUserProfile(
+//                                    it
+//                                )
+//                            }
+//                            // Mostra il Toast dopo il salvataggio
+//                            Toast.makeText(context, "Profilo aggiornato con successo!", Toast.LENGTH_SHORT).show()
+//
+//                        } catch (e: Exception) {
+//                            Log.e("UserProfileContent", "Error parsing input fields", e)
+//                        }
+//                    }
+//                    , ) {
+//                        androidx.compose.material.Icon(
+//                            Icons.Rounded.Edit,
+//                            contentDescription = "Make profile editable"
+//                        )
+//                    }
+
+
+//                    TextButton(
+//                        onClick = {
+//                            try {
+//                                val parsedWeight = weight.toDoubleOrNull()
+//                                val parsedBirthDate =
+//                                    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(
+//                                        birthDate
+//                                    )
+//                                if (parsedWeight == null || parsedBirthDate == null) {
+//                                    // Gestisci l'errore, es: messaggio di errore
+//                                    return@TextButton
+//                                }
+//                                viewModel.updateUserProfile(
+//                                    User(
+//                                        userId = userId,
+//                                        name = name,
+//                                        weight = parsedWeight,
+//                                        email = email,
+//                                        birthdate = parsedBirthDate
+//                                    )
+//                                )
+//                                // Mostra il Toast dopo il salvataggio
+//                                Toast.makeText(context, "Profilo aggiornato con successo!", Toast.LENGTH_SHORT).show()
+//
+//                            } catch (e: Exception) {
+//                                Log.e("UserProfileContent", "Error parsing input fields", e)
+//                            }
+//                        }
+//                    ) {
+//                        Text(
+//                            text = "Salva",
+//                            color = MaterialTheme.colorScheme.onPrimary,
+//                            style = MaterialTheme.typography.bodyLarge
+//                        )
+//                    }
                 }
             }
         }
@@ -225,27 +325,36 @@ fun UserProfileContent(
                 onValueChange = onNameChange,
                 label = { Text("Nome") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = isOwner,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    // Colore del testo quando è in focus o no
-                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-
-                    // Bordo quando è in focus o no
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = Color.Gray,
-                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
-
-                    // Label quando è in focus o no
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = Color.Gray,
-                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
-
-                    // Testo quando è disabilitato
-                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
-                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
-
-                    )
+                enabled = isOwner && isEditable,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF4CAF50),    // Green when focused
+                    unfocusedBorderColor = Color.Black,
+                    errorBorderColor = Color.Red,
+                    unfocusedTextColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    disabledBorderColor = Color.DarkGray,
+                    disabledTextColor = Color.DarkGray
+                )
+//                colors = TextFieldDefaults.outlinedTextFieldColors(
+//                    // Colore del testo quando è in focus o no
+//                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+//                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+//
+//                    // Bordo quando è in focus o no
+//                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+//                    unfocusedBorderColor = Color.Gray,
+//                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
+//
+//                    // Label quando è in focus o no
+//                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+//                    unfocusedLabelColor = Color.Gray,
+//                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
+//
+//                    // Testo quando è disabilitato
+//                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
+//                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
+//
+//                    )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -257,21 +366,31 @@ fun UserProfileContent(
                 label = { Text("Email") },
                 enabled = false,
                 modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    // Bordo quando è in focus o no
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF4CAF50),
                     unfocusedBorderColor = Color.Gray,
-                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
+                    errorBorderColor = Color.Red,
+                    unfocusedTextColor = Color.Gray,
+                    focusedTextColor = Color.Black,
+                    disabledBorderColor = Color.DarkGray,
+                    disabledTextColor = Color.DarkGray
 
-                    // Label quando è in focus o no
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = Color.Gray,
-                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
-
-                    // Testo quando è disabilitato
-                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
-                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
                 )
+//                colors = TextFieldDefaults.outlinedTextFieldColors(
+//                    // Bordo quando è in focus o no
+//                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+//                    unfocusedBorderColor = Color.Gray,
+//                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
+//
+//                    // Label quando è in focus o no
+//                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+//                    unfocusedLabelColor = Color.Gray,
+//                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
+//
+//                    // Testo quando è disabilitato
+//                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
+//                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
+//                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -282,26 +401,35 @@ fun UserProfileContent(
                 onValueChange = onWeightChange,
                 label = { Text("Peso (kg)") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = isOwner,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    // Colore del testo quando è in focus o no
-                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-
-                    // Bordo quando è in focus o no
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = Color.Gray,
-                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
-
-                    // Label quando è in focus o no
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = Color.Gray,
-                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
-
-                    // Testo quando è disabilitato
-                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
-                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
-                    )
+                enabled = isOwner && isEditable,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF4CAF50),    // Green when focused
+                    unfocusedBorderColor = Color.Black,
+                    errorBorderColor = Color.Red,
+                    unfocusedTextColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    disabledBorderColor = Color.DarkGray,
+                    disabledTextColor = Color.DarkGray
+                )
+//                colors = TextFieldDefaults.outlinedTextFieldColors(
+//                    // Colore del testo quando è in focus o no
+//                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+//                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+//
+//                    // Bordo quando è in focus o no
+//                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+//                    unfocusedBorderColor = Color.Gray,
+//                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
+//
+//                    // Label quando è in focus o no
+//                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+//                    unfocusedLabelColor = Color.Gray,
+//                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
+//
+//                    // Testo quando è disabilitato
+//                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
+//                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
+//                    )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -312,27 +440,37 @@ fun UserProfileContent(
                 onValueChange = onBirthDateChange,
                 label = { Text("Compleanno (gg/mm/aaaa)") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = isOwner,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    // Colore del testo quando è in focus o no
-                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                enabled = isOwner && isEditable,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF4CAF50),    // Green when focused
+                    unfocusedBorderColor = Color.Black,
+                    errorBorderColor = Color.Red,
+                    unfocusedTextColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    disabledBorderColor = Color.DarkGray,
+                    disabledTextColor = Color.DarkGray
 
-                    // Bordo quando è in focus o no
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = Color.Gray,
-                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
-
-                    // Label quando è in focus o no
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = Color.Gray,
-                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
-
-                    // Testo quando è disabilitato
-                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
-                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
-
-                    )
+                )
+//                colors = TextFieldDefaults.outlinedTextFieldColors(
+//                    // Colore del testo quando è in focus o no
+//                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+//                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+//
+//                    // Bordo quando è in focus o no
+//                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+//                    unfocusedBorderColor = Color.Gray,
+//                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
+//
+//                    // Label quando è in focus o no
+//                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+//                    unfocusedLabelColor = Color.Gray,
+//                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
+//
+//                    // Testo quando è disabilitato
+//                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
+//                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
+//
+//                    )
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -377,7 +515,8 @@ fun UserProfileScreenPreview() {
             weight = "75",
             onWeightChange = {},
             birthDate = "15/04/1985",
-            onBirthDateChange = {}
+            onBirthDateChange = {},
+            isEditable = true
         )
     }
 }

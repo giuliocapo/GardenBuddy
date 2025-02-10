@@ -23,7 +23,7 @@ import kotlin.math.sin
 @Composable
 fun SunIcon(modifier: Modifier){
     Column {
-
+        val sunColor = Color(0xFFFBFF00)
         val infiniteTransition = rememberInfiniteTransition()
         val rotationAngle by infiniteTransition.animateFloat(
             initialValue = 0f,
@@ -35,7 +35,7 @@ fun SunIcon(modifier: Modifier){
         )
 
         Canvas(
-            modifier.size(64.dp)
+            modifier.size(90.dp)
                 .padding(end = 16.dp)
         ) {
 
@@ -50,11 +50,11 @@ fun SunIcon(modifier: Modifier){
                 val startY = centerY + radius * sin(angle).toFloat()
                 val endX = centerX + rayLength * cos(angle).toFloat()
                 val endY = centerY + rayLength * sin(angle).toFloat()
-                drawLine(Color.Yellow, Offset(startX, startY), Offset(endX, endY), strokeWidth = 5f)
+                drawLine(sunColor, Offset(startX, startY), Offset(endX, endY), strokeWidth = 7f)
             }
 
 
-            drawCircle(Color.Yellow, radius = radius, center = Offset(centerX, centerY))
+            drawCircle(sunColor, radius = radius, center = Offset(centerX, centerY))
         }
     }
 }

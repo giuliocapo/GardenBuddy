@@ -13,6 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.gardenbuddy.utils.WeatherIconCode
 
 
 @Composable
@@ -20,6 +21,7 @@ fun WeatherCard(
     location: String,
     temperature: String,
     summary: String,
+    weatherIcon: WeatherIconCode,
     modifier: Modifier = Modifier
 ) {
 
@@ -38,9 +40,13 @@ fun WeatherCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = modifier.weight(1f)){
-//                AnimatedSunWithClouds(modifier)
-              SunIcon(modifier)
-                //CloudsAndRainIcon()
+//
+                if (weatherIcon == WeatherIconCode.SUNNY)
+                    SunIcon(modifier)
+                else if (weatherIcon == WeatherIconCode.CLOUDY)
+                    SunWithCloudsIcon(modifier)
+                else if (weatherIcon == WeatherIconCode.RAINY)
+                    CloudsAndRainIcon()
             }
 
             // Sezione Informazioni Meteo
@@ -65,7 +71,7 @@ fun WeatherCard(
                 Text(
                     text = summary,
                     fontSize = 16.sp,
-                    color = Color.Gray,
+                    color = Color.White,
                     textAlign = TextAlign.Start
                 )
             }
@@ -81,6 +87,7 @@ fun WeatherCardPreview() {
         location = "Rome, Italy",
         temperature = "18°C",
         summary = "Sunny",
+        weatherIcon = WeatherIconCode.SUNNY,
         modifier = Modifier
     )
 }

@@ -17,6 +17,9 @@ class UserProfileScreenViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow("")
     val errorMessage = _errorMessage.asStateFlow()
 
+    private val _isEditable = MutableStateFlow(false)
+    val isEditable = _isEditable.asStateFlow()
+
     fun loadUserProfile(userId: String) {
         viewModelScope.launch {
             val result = AuthRepository.getUserProfile(userId)
@@ -39,5 +42,9 @@ class UserProfileScreenViewModel : ViewModel() {
                 Log.e("UserProfileViewModel", "Error updating user profile", error)
             }
         }
+    }
+
+    fun toggleEditable() {
+        _isEditable.value = !_isEditable.value
     }
 }

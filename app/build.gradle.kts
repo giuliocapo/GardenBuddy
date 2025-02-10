@@ -5,6 +5,8 @@ plugins {
     // Aggiungi il plugin di Google Services
     alias(libs.plugins.google.services)
     alias(libs.plugins.kotlin.serialization)
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -93,5 +95,17 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation("androidx.compose.material:material-icons-extended:${libs.versions.compose.get()}")
 
+    //Datastore library
+    implementation (libs.androidx.datastore.preferences)
 
+    //Hilt
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.android.v2511)
+    kapt(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+}
+
+kapt {
+    correctErrorTypes = true
 }

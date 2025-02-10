@@ -27,11 +27,14 @@ import com.example.gardenbuddy.ui.screens.gardenscreen.GardenDetailsScreen
 import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreen
 import com.example.gardenbuddy.ui.screens.gardenscreen.GardenScreenViewModel
 import com.example.gardenbuddy.ui.screens.homescreen.HomeScreen
+import com.example.gardenbuddy.ui.screens.homescreen.WeatherViewModel
 import com.example.gardenbuddy.ui.screens.plantScreen.PlantScreenViewModel
 import com.example.gardenbuddy.ui.screens.plantScreen.PlantSearchSection
 import com.example.gardenbuddy.ui.theme.GardenBuddyTheme
 import com.example.gardenbuddy.utils.FirebaseInitializer
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
