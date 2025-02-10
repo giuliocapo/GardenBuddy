@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.firebase.firestore) // Firestore Database
     implementation(libs.firebase.auth) // Firebase Authentication
     implementation(libs.firebase.database) // Realtime Database
+    implementation(libs.mlkitlabeling)
 
     // Retrofit library
     implementation(libs.retrofit)

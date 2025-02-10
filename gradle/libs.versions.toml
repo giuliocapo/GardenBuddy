@@ -21,6 +21,7 @@ accompanist = "0.30.1"
 runtimeLivedata = "1.7.6"
 playServicesLocation = "21.3.0" # Use the correct version of Compose
 compose = "1.4.3"
+mlkit = "17.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -55,7 +56,7 @@ accompanist-pager-indicators = { group = "com.google.accompanist", name = "accom
 androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 androidx-compose-icons = "androidx.compose.material:material-icons-extended:${compose}"
-
+mlkitlabeling = { module = "com.google.mlkit:image-labeling", version.ref = "mlkit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,9 +1,11 @@
 package com.example.gardenbuddy.ui.screens.photosscreen
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.util.Base64
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -31,19 +33,74 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import java.io.ByteArrayOutputStream
+import android.widget.Toast
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabeler
+import com.google.mlkit.vision.label.ImageLabeling
+import com.google.mlkit.vision.label.ImageLabel
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 
+
+fun recognizeImage(context: Context, bitmap: Bitmap) {
+    val image = InputImage.fromBitmap(bitmap, 0)
+
+    // Configura il client con le opzioni predefinite
+    val labelerOptions = ImageLabelerOptions.Builder()
+        .setConfidenceThreshold(0.7f) // Soglia di confidenza per l'etichettatura (opzionale)
+        .build()
+
+    val labeler: ImageLabeler = ImageLabeling.getClient(labelerOptions)
+
+    labeler.process(image)
+        .addOnSuccessListener { labels ->
+            // Stampa i label riconosciuti per il debugging
+            labels.forEach { label ->
+                println("MLKitDebug Label: ${label.text}, Confidence: ${label.confidence}")
+            }
+
+            // Controlla se l'immagine contiene etichette pertinenti a giardini o piante
+            val validLabels = labels.any { label: ImageLabel ->
+                label.text.contains("garden", ignoreCase = true) || label.text.contains("plant", ignoreCase = true) || label.text.contains("flower", ignoreCase = true)
+            }
+            if(!validLabels){
+                Toast.makeText(context, "it seems there is no plant or garden in the image", Toast.LENGTH_SHORT).show()
+            }else {
+                Toast.makeText(context, "plant or garden detected", Toast.LENGTH_SHORT).show()
+            }
+        }
+        .addOnFailureListener {
+            Toast.makeText(context, "it seems there is no plant or garden in the image", Toast.LENGTH_SHORT).show()
+        }
+}
+
+// Funzione per la gestione della fotocamera
+fun launchCamera(
+    cameraLauncher: ManagedActivityResultLauncher<Void?, Bitmap?>,
+    permissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
+    context: Context
+) {
+    val permissionStatus = ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.CAMERA
+    )
+
+    if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+        cameraLauncher.launch(null)
+    } else {
+        permissionLauncher.launch(Manifest.permission.CAMERA)
+    }
+}
 
 @Composable
 fun CameraButton(
-    gardenId : Long,
-    plantId : Long,
+    gardenId: Long,
+    plantId: Long,
     onDismiss: () -> Unit,
-    onSavePhotoClick: (gardenId : Long, plantId : Long, photos : List<String>) -> Unit // New parameter to handle the save photo action
-
+    onSavePhotoClick: (gardenId: Long, plantId: Long, photos: List<String>) -> Unit
 ) {
-
     var showPhotoDialog by remember { mutableStateOf(false) }
     var capturedPhotoBase64 by remember { mutableStateOf<String?>(null) }
+    var isPhotoValid by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -55,8 +112,11 @@ fun CameraButton(
             val base64String = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT)
             capturedPhotoBase64 = "data:image/jpeg;base64,$base64String"
             showPhotoDialog = true
+            // Riconoscimento dell'immagine
+            recognizeImage(context, it)
         }
     }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -68,22 +128,10 @@ fun CameraButton(
     }
 
     LaunchedEffect(Unit) {
-        when (PackageManager.PERMISSION_GRANTED) {
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.CAMERA
-            ) -> {
-                // Permission already granted, launch camera
-                cameraLauncher.launch(null)
-            }
-            else -> {
-                // Request permission
-                permissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        }
+        launchCamera(cameraLauncher, permissionLauncher, context)
     }
 
-    // Photo dialog
+    // Dialogo per la foto
     if (showPhotoDialog && capturedPhotoBase64 != null) {
         Dialog(
             onDismissRequest = {
@@ -124,16 +172,13 @@ fun CameraButton(
                         Button(
                             onClick = {
                                 capturedPhotoBase64?.let { base64 ->
-                                    onSavePhotoClick(gardenId,
-                                        plantId,
-                                        listOf(base64))
+                                    onSavePhotoClick(gardenId, plantId, listOf(base64))
                                 }
-
                                 showPhotoDialog = false
                                 capturedPhotoBase64 = null
                                 onDismiss()
                             },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         ) {
                             Text("Ok")
                         }
