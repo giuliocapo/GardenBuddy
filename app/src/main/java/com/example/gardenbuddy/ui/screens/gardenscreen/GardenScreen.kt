@@ -236,7 +236,7 @@ fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewMod
                     dimension = garden.dimension,
                     latitude = garden.latitude,
                     longitude = garden.longitude,
-                    photos = garden.photos + _photos
+                    photos = _photos
                 ))
             }
         )
