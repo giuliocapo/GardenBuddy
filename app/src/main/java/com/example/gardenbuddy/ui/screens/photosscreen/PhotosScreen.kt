@@ -1,6 +1,9 @@
 package com.example.gardenbuddy.ui.screens.photosscreen
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Base64
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -23,12 +26,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import kotlin.math.max
 
 
 @Composable
@@ -36,9 +44,12 @@ fun PhotosCard(photos: List<String>) {
 
     var currentPhotoIndex by remember { mutableStateOf(0) }
     if (photos.isNotEmpty()) {
+        val imageWidth = 120.dp
+        val aspectRatio = 9f / 16f
+        val imageHeight = imageWidth / aspectRatio
         Card(
             modifier = Modifier
-                .size(150.dp)
+                .size(imageWidth, imageHeight)
                 .padding(8.dp),
             shape = MaterialTheme.shapes.medium,
             elevation = CardDefaults.cardElevation(4.dp)
@@ -47,14 +58,12 @@ fun PhotosCard(photos: List<String>) {
                 // Display the current photo
                 val base64Photo = photos[currentPhotoIndex]
                 val cleanBase64 = base64Photo.replace("data:image/jpeg;base64,", "")
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(Base64.decode(cleanBase64, Base64.DEFAULT))
-                        .build(),
-                    contentDescription = "Photo $currentPhotoIndex",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+
+                val decodedByteArray = Base64.decode(cleanBase64, Base64.DEFAULT)
+                val bitmap = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.size)
+
+                DrawImageOnCanvas(bitmap = bitmap, modifier = Modifier.fillMaxSize())
+
                 // Navigation buttons
                 Row(
                     modifier = Modifier
@@ -104,5 +113,38 @@ fun PhotosCard(photos: List<String>) {
         }
     } else {
         Text("No photo", modifier = Modifier.padding(8.dp))
+    }
+}
+
+
+// Function that handles the canvas drawing logic
+@Composable
+fun DrawImageOnCanvas(
+    bitmap: Bitmap,
+    modifier: Modifier
+) {
+    Canvas(modifier = modifier.fillMaxSize()) {
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+
+        val imageWidth = bitmap.width.toFloat()
+        val imageHeight = bitmap.height.toFloat()
+
+        val scaleFactor = max(canvasWidth / imageWidth, canvasHeight / imageHeight)
+        val scaledWidth = imageWidth * scaleFactor
+        val scaledHeight = imageHeight * scaleFactor
+
+        // Calcola gli offset per centrare l'immagine
+        val offsetX = (canvasWidth - scaledWidth) / 2
+        val offsetY = (canvasHeight - scaledHeight) / 2
+
+        // Disegna l'immagine scalata sul Canvas
+        with(drawContext.canvas) {
+            save()
+            translate(offsetX, offsetY)
+            scale(scaleFactor, scaleFactor)
+            drawImage(bitmap.asImageBitmap())
+            restore()
+        }
     }
 }
