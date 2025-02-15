@@ -2,6 +2,7 @@ package com.example.gardenbuddy.ui.screens.activityboardscreen
 
 
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -129,93 +130,99 @@ fun ActivityBoardScreen(
 
 @Composable
 fun ActivityCard(activity: Activity, navController: NavController) {
-    Card(
+    ElevatedCard(
         onClick = {
             // Navigate to the user's profile when the card is clicked.
             navController.navigate("userProfile/${activity.userId}")
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(Color.White),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary
+            containerColor = Color.White
         )
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Header row with user icon and username
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "User Icon",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                Text(
-                    text = activity.username,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Divider(color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f))
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Row containing the three metrics with icons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Time
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(modifier = Modifier.fillMaxWidth()
+            .background(color = Color.White, shape = RoundedCornerShape(16.dp))
+            ){
+            Column(modifier = Modifier.padding(16.dp)) {
+                // Header row with user icon and username
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Icon(
-                        imageVector = Icons.Default.AccessTime,
-                        contentDescription = "Time",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "User Icon",
+                        tint = Color.Black
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "${activity.minutes} min",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        text = activity.username,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.Black
                     )
                 }
-                // Steps
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = Icons.Default.DirectionsWalk,
-                        contentDescription = "Steps",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "${activity.steps} steps",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-                // Calories
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = Icons.Default.LocalFireDepartment,
-                        contentDescription = "Calories Burned",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "${activity.calories} kcal",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Divider(color = Color.Gray)
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Row containing the three metrics with icons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Time
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.AccessTime,
+                            contentDescription = "Time",
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "${activity.minutes} min",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black
+                        )
+                    }
+                    // Steps
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.DirectionsWalk,
+                            contentDescription = "Steps",
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "${activity.steps} steps",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black
+                        )
+                    }
+                    // Calories
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.LocalFireDepartment,
+                            contentDescription = "Calories Burned",
+                            tint = Color.Black
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "${activity.calories} kcal",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black
+                        )
+                    }
                 }
             }
         }
+
     }
 }
 

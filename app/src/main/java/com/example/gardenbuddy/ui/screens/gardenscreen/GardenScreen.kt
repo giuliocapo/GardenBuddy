@@ -248,18 +248,23 @@ fun GardenCardContent(
                     }
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { isEditing = true }) {
+                Column() {
+                    OutlinedButton(onClick = { showCamera = true }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Default.CameraAlt,  contentDescription = "Add Photo")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Add Photo")
+                    }
+
+                    Button(onClick = { isEditing = true }, modifier = Modifier.fillMaxWidth()) {
                         Text("Edit Garden")
                     }
+
                     Button(onClick = onNavigate, modifier = Modifier.fillMaxWidth()) {
                         Text("Open Garden Details")
                     }
                 }
 
-                IconButton(onClick = { showCamera = true }) {
-                    Icon(Icons.Default.CameraAlt,  contentDescription = "Add Photo")
-                }
+
             }
         }
     }

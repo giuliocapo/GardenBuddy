@@ -4,16 +4,15 @@ package com.example.gardenbuddy.ui.screens.homescreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,23 +36,13 @@ fun WeatherCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .background(brush = gradient, shape = RoundedCornerShape(16.dp)) // Applica il gradiente
+            .shadow(elevation = 16.dp, shape = RoundedCornerShape(16.dp))
+            .background(brush = gradient, shape = RoundedCornerShape(16.dp)), // Applica il gradiente
+
     ){
-        Card(
-            modifier = modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
 
-            //shape = RoundedCornerShape(16.dp),
-            //elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent) // Rendi la card trasparente
-
-//            colors = androidx.compose.material3.CardDefaults.cardColors(
-//                containerColor = Color(0xFF5fd6e8)
-//            )
-        ) {
             Row(
-                modifier = Modifier,
+                modifier = modifier.padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = modifier.weight(1f)){
@@ -83,7 +72,8 @@ fun WeatherCard(
                         fontSize = 24.sp,
                         color = Color.White,
                         textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.headlineMedium
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -96,21 +86,26 @@ fun WeatherCard(
                     )
                 }
             }
-        }
+
     }
 }
 
 
 @Preview
 @Composable
-fun SunnyWeatherCardPreview() {
-    WeatherCard(
-        location = "Rome",
-        temperature = "18°C",
-        summary = "Sunny",
-        weatherIcon = WeatherIconCode.SUNNY,
-        modifier = Modifier
-    )
+fun SunnyWeatherCardPreview(){
+    Box(
+        modifier = Modifier.size(width = 500.dp, height = 160.dp)
+        .background(color = MaterialTheme.colorScheme.background)
+        ){
+        WeatherCard(
+            location = "Rome",
+            temperature = "18°C",
+            summary = "Sunny",
+            weatherIcon = WeatherIconCode.SUNNY,
+            modifier = Modifier
+        )
+    }
 }
 
 @Preview

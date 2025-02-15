@@ -60,6 +60,7 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color.Black,
     error = Color(0xFFB00020),
     onError = Color(0xFFFFFFFF),
+    tertiary = Color(0xFF000000)
 )
 
 // Dark Theme Color Scheme
