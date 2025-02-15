@@ -92,12 +92,12 @@ fun GardenPlantCard(plant: Plant, photos: List<String>, gardenScreenViewModel: G
                 Column(){
                     Text(
                         text = plant.scientificName,
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Species: ${plant.species}",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = plant.species,
+                        style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(vertical = 2.dp)
                     )
                 }
