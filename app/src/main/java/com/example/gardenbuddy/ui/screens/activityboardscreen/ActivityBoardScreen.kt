@@ -11,8 +11,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -22,7 +30,6 @@ import com.example.gardenbuddy.ui.screens.SharedUserViewModel
 import com.example.gardenbuddy.ui.screens.homescreen.BottomNavigationBar
 import com.example.gardenbuddy.ui.theme.GardenBuddyTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActivityBoardScreen(
     navController: NavHostController,
@@ -54,14 +61,21 @@ fun ActivityBoardScreen(
                     .padding(innerPadding)
                     .fillMaxSize()
             ) {
+                Text(
+                    text = "Activities",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
                 // Barra di ricerca
                 TextField(
                     value = searchQuery.value,
                     onValueChange = { viewModel.updateSearchQuery(it) },
-                    placeholder = { Text("Cerca utente...") },
+                    placeholder = { Text("Search user...") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(8.dp),
+                    
                 )
 
                 // Lista delle attività
@@ -74,44 +88,139 @@ fun ActivityBoardScreen(
         }
     )
 }
+//
+//@Composable
+//fun ActivityCard(activity: Activity , navController: NavController) {
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(8.dp)
+//            .clickable {
+//
+//                // Quando clicchi sulla card, navighi al profilo di quell'utente
+//                navController.navigate("userProfile/${activity.userId}")
+//            },
+//        colors = CardDefaults.cardColors(
+//            containerColor = MaterialTheme.colorScheme.primary
+//        ),
+//        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+//    ) {
+//        Column(modifier = Modifier.padding(16.dp)) {
+//            Text(
+//                text = "Utente: ${activity.username}",
+//                style = MaterialTheme.typography.titleLarge,
+//                color = MaterialTheme.colorScheme.onPrimary
+//            )
+//            Text(
+//                text = "Minuti: ${activity.minutes}",
+//                color = MaterialTheme.colorScheme.onPrimary
+//            )
+//            Text(
+//                text = "Passi: ${activity.steps}",
+//                color = MaterialTheme.colorScheme.onPrimary
+//            )
+//            Text(
+//                text = "Calorie: ${activity.calories} kcal",
+//                color = MaterialTheme.colorScheme.onPrimary
+//            )
+//        }
+//    }
+//}
 
 @Composable
-fun ActivityCard(activity: Activity , navController: NavController) {
+fun ActivityCard(activity: Activity, navController: NavController) {
     Card(
+        onClick = {
+            // Navigate to the user's profile when the card is clicked.
+            navController.navigate("userProfile/${activity.userId}")
+        },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .clickable {
-
-                // Quando clicchi sulla card, navighi al profilo di quell'utente
-                navController.navigate("userProfile/${activity.userId}")
-            },
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            containerColor = MaterialTheme.colorScheme.secondary
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Utente: ${activity.username}",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Text(
-                text = "Minuti: ${activity.minutes}",
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Text(
-                text = "Passi: ${activity.steps}",
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Text(
-                text = "Calorie: ${activity.calories} kcal",
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+            // Header row with user icon and username
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "User Icon",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Text(
+                    text = activity.username,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Divider(color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f))
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Row containing the three metrics with icons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Time
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Icons.Default.AccessTime,
+                        contentDescription = "Time",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${activity.minutes} min",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                // Steps
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Icons.Default.DirectionsWalk,
+                        contentDescription = "Steps",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${activity.steps} steps",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                // Calories
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Icons.Default.LocalFireDepartment,
+                        contentDescription = "Calories Burned",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${activity.calories} kcal",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
         }
     }
 }
+
+
+
 @Preview(showBackground = true)
 @Composable
 fun ActivityCardPreview() {

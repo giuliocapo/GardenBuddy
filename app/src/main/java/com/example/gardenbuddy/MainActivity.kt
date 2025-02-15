@@ -109,7 +109,6 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         }
         composable("social") {
             ActivityBoardScreen(navController = navController, sharedUserViewModel = sharedUserViewModel)
-            Text("Social screen")
         }
         composable("garden_details/{id}") {
             GardenDetailsScreen(navController = navController, sharedUserViewModel = sharedUserViewModel, gardenScreenViewModel = gardenScreenViewModel, plantScreenViewModel = plantScreenViewModel)

@@ -32,6 +32,7 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import com.example.gardenbuddy.ui.screens.homescreen.BottomNavigationBar
 
@@ -128,14 +129,12 @@ fun UserProfileContent(
         // Barra in alto con pulsante "Salva"
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(24.dp),
+                .fillMaxWidth(),
             contentAlignment = Alignment.CenterStart
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -151,6 +150,12 @@ fun UserProfileContent(
                     val context = LocalContext.current
                     if (!isEditable) {
                         Row(Modifier.fillMaxWidth()){
+                            Text(
+                                text = "Your Profile",
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
                             Spacer(Modifier.weight(1f))
                             IconButton(onClick = { viewModel.toggleEditable() }) {
                                 Icon(
@@ -161,6 +166,12 @@ fun UserProfileContent(
                         }
                     }else{
                         Row (Modifier.fillMaxWidth()) {
+                            Text(
+                                text = "Your Profile",
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
                             Spacer(Modifier.weight(1f))
                             IconButton(onClick = { viewModel.toggleEditable() }) {
                                 Icon(
