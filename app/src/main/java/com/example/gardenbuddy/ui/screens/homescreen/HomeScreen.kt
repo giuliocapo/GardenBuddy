@@ -1,5 +1,6 @@
 package com.example.gardenbuddy.ui.screens.homescreen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 
@@ -50,6 +51,7 @@ fun HomeScreen(navController: NavHostController, sharedUserViewModel: SharedUser
                 }
                 weatherInfo?.let {
                     weatherIconCode?.let { code ->
+                        Log.d("WeatherCode", code.toString())
                         WeatherCard(
                             location = it.location,
                             temperature = "${it.temperature.toInt()}°C",

@@ -41,7 +41,8 @@ class WeatherViewModel @Inject constructor(
      private fun getWeatherInfo(userId : String) {
         viewModelScope.launch{
             _weatherInfo.value = WeatherRepository.fetchWeatherInfo(userId)
-            _weatherIconCode.value = mapWeatherCode(_weatherInfo.value!!.iconCode)
+            Log.d("Weather code VM", _weatherInfo.value!!.weather_id.toString())
+            _weatherIconCode.value = mapWeatherCode(_weatherInfo.value!!.weather_id)
             Log.d("WeatherViewModel", "Weather Info: ${_weatherInfo.value}")
             Log.d("WeatherViewModel", "Weather Icon Code: ${_weatherIconCode.value}")
 
