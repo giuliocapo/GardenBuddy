@@ -35,7 +35,7 @@ fun BottomNavigationBar(
     NavigationBar(
         containerColor = Color.White,
         contentColor = Color.Black,
-        modifier = Modifier.offset(y = 24.dp) // Abbassa la barra di 16dp
+        modifier = Modifier.offset(y = 10.dp)
 
     ) {
         NavigationBarItem(
