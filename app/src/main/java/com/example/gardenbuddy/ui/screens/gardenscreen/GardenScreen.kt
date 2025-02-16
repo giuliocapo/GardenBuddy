@@ -193,6 +193,27 @@ fun GardenCardContent(
                     )
                 }
 
+                if (hasLocationPermission) {
+                    Button(onClick = {
+                        isUpdatingLocation = true
+                        gardenScreenViewModel.fetchCurrentLocation(activity) }) {
+                        Text("Get Current Location")
+                    }
+                    if (isUpdatingLocation && currentLocation != null) {
+                        currentLocation?.let { (latitude_input, longitude_input) ->
+                            editedLatitude = latitude_input
+                            editedLongitude = longitude_input
+                            isUpdatingLocation = false // Reset after updating
+                        }
+                    }
+                } else {
+                    Button(onClick = {
+                        gardenScreenViewModel.requestLocationPermission(permissionLauncher)
+                    }) {
+                        Text("Request Location Permission")
+                    }
+                }
+
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = {
                         if (editedName.isNotBlank()) {
@@ -286,180 +307,6 @@ fun GardenCardContent(
         )
     }
 }
-
-//                        AsyncImage(
-//                            model = ImageRequest.Builder(LocalContext.current)
-//                                .data(Base64.decode(photo.replace("data:image/jpeg;base64,", ""), Base64.DEFAULT))
-//                                .build(),
-//                            contentDescription = "Photo",
-//                            modifier = Modifier
-//                                .size(100.dp)
-//                                .padding(4.dp)
-//                                .clip(RoundedCornerShape(8.dp))
-//                                .background(MaterialTheme.colorScheme.surfaceVariant),
-//                            contentScale = ContentScale.Crop
-//                        )
-//                        Image(
-//                            painter = rememberAsyncImagePainter(photo),
-//                            contentDescription = null,
-//                            modifier = Modifier
-//                                .size(100.dp)
-//                                .padding(4.dp)
-//                                .clip(RoundedCornerShape(8.dp))
-//                                .background(MaterialTheme.colorScheme.surfaceVariant)
-//                        )
-
-
-//@Composable
-//fun GardenCardContent(garden: Garden, gardenScreenViewModel: GardenScreenViewModel, onClick: () -> Unit) {
-//    var isEditing by remember { mutableStateOf(false) }
-//    var editedName by remember { mutableStateOf(garden.name) }
-//    var editedDimension by remember { mutableStateOf(garden.dimension) }
-//    var editedLatitude by remember { mutableStateOf(garden.latitude) }
-//    var editedLongitude by remember { mutableStateOf(garden.longitude) }
-//    var showCamera by remember { mutableStateOf(false) }
-//    val hasLocationPermission by gardenScreenViewModel.hasLocationPermission.collectAsState()
-//    val currentLocation by gardenScreenViewModel.currentLocation.collectAsState()
-//    var isUpdatingLocation by remember { mutableStateOf(false) }
-//    val context = LocalContext.current
-//    val activity = context as ComponentActivity
-//    val permissionLauncher = LocationUtils.rememberLocationPermissionLauncher { isGranted ->
-//        gardenScreenViewModel.updatePermissionStatus(isGranted)
-//    }
-//
-//    LaunchedEffect(Unit) {
-//        gardenScreenViewModel.checkInitialPermission(activity)
-//    }
-//
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(8.dp)
-//            .clickable(onClick = onClick)
-//            .shadow(4.dp, shape = MaterialTheme.shapes.medium),
-//        shape = MaterialTheme.shapes.medium
-//    ) {
-//        Column(modifier = Modifier.padding(16.dp)) {
-//            if (isEditing) {
-//                // Editing mode
-//                TextField(
-//                    value = editedName,
-//                    onValueChange = { editedName = it },
-//                    label = { Text("Garden Name") },
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-//
-//                TextField(
-//                    value = editedDimension.toString(),
-//                    onValueChange = { editedDimension = it.toDoubleOrNull() ?: editedDimension },
-//                    label = { Text("Dimension (sqm)") },
-//                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-//
-//                TextField(
-//                    value = editedLatitude.toString(),
-//                    onValueChange = { input ->
-//                        println("input: $input")
-//                        val parsedValue = input.toDoubleOrNull()
-//
-//                        if (parsedValue != null) {
-//                            editedLatitude = parsedValue
-//                        }
-//                    },
-//                    label = { Text("Latitude") },
-//                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-//
-//                TextField(
-//                    value = editedLongitude.toString(),
-//                    onValueChange = { input ->
-//                        val parsedValue = input.toDoubleOrNull()
-//                        if (parsedValue != null) {
-//                            editedLongitude = parsedValue
-//                        }
-//                    },
-//                    label = { Text("Longitude") },
-//                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-//
-//                if (hasLocationPermission) {
-//                    Button(onClick = {
-//                        isUpdatingLocation = true
-//                        gardenScreenViewModel.fetchCurrentLocation(activity) }) {
-//                        Text("Get Current Location")
-//                    }
-//                    if (isUpdatingLocation && currentLocation != null) {
-//                        currentLocation?.let { (latitude, longitude) ->
-//                            editedLatitude = latitude
-//                            editedLongitude = longitude
-//                            isUpdatingLocation = false // Reset after updating
-//                        }
-//                    }
-//                } else {
-//                    Button(onClick = {
-//                        gardenScreenViewModel.requestLocationPermission(permissionLauncher)
-//                    }) {
-//                        Text("Request Location Permission")
-//                    }
-//                }
-//                Row {
-//                    Button(onClick = {
-//                        if(editedName.isNotBlank() && editedDimension.isNaN().not() && editedLatitude.isNaN().not() && editedLongitude.isNaN().not()){
-//                            gardenScreenViewModel.updateGarden(garden.id, garden.copy(
-//                                name = editedName,
-//                                dimension = editedDimension,
-//                                latitude = editedLatitude,
-//                                longitude = editedLongitude
-//                            ))
-//                            isEditing = false
-//                        }
-//                    }) {
-//                        Text("Save")
-//                    }
-//                    Button(onClick = { isEditing = false }) {
-//                        Text("Cancel")
-//                    }
-//                }
-//            } else {
-//                // View mode
-//                Text(text = "Name of the garden: ${garden.name}", style = MaterialTheme.typography.titleLarge)
-//                Text(text = "Dimension: ${garden.dimension} sqm", style = MaterialTheme.typography.bodyMedium)
-//                Text(text = "Location: (${garden.latitude}, ${garden.longitude})", style = MaterialTheme.typography.bodySmall)
-//                Row(verticalAlignment = Alignment.CenterVertically) {
-//                    PhotosCard(photos = garden.photos)
-//                    Spacer(modifier = Modifier.width(8.dp))
-//                    Button(onClick = {
-//                        if (!showCamera) showCamera = true
-//                    }) {
-//                        Text("Add Photo")
-//                    }
-//                }
-//                Button(onClick = { isEditing = true }) {
-//                    Text("Edit")
-//                }
-//            }
-//        }
-//    }
-//    if (showCamera) {
-//        CameraButton(
-//            garden.id,
-//            0L, // unused param
-//            onDismiss = { showCamera = false },
-//            onSavePhotoClick = { garden_Id, plant_Id, _photos ->
-//                gardenScreenViewModel.updateGarden(garden_Id, garden.copy(
-//                    name = garden.name,
-//                    dimension = garden.dimension,
-//                    latitude = garden.latitude,
-//                    longitude = garden.longitude,
-//                    photos = _photos
-//                ))
-//            }
-//        )
-//    }
-//}
 
 @Composable
 fun CreateGarden(
