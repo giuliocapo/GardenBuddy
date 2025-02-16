@@ -219,7 +219,7 @@ fun GardenCardContent(
                         if (editedName.isNotBlank()) {
                             gardenScreenViewModel.updateGarden(
                                 garden.id,
-                                garden.copy(name = editedName, dimension = editedDimension, latitude = editedLatitude, longitude = editedLongitude)
+                                garden.copy(name = editedName, dimension = editedDimension, latitude = editedLatitude, longitude = editedLongitude, photos = emptyList())
                             )
                             isEditing = false
                         }
