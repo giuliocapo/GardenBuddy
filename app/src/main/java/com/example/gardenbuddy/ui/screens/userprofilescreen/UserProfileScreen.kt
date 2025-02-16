@@ -25,6 +25,8 @@ import java.util.*
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.launch
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Check
@@ -34,6 +36,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
+import com.example.gardenbuddy.data.models.Activity
+import com.example.gardenbuddy.ui.screens.activityboardscreen.ActivityBoardViewModel
+import com.example.gardenbuddy.ui.screens.activityboardscreen.ActivityCard
 import com.example.gardenbuddy.ui.screens.homescreen.BottomNavigationBar
 
 @Composable
@@ -45,6 +50,7 @@ fun UserProfileScreen(
 ) {
     val selectedTab = remember { mutableStateOf("userProfile") }
     val isEditable by viewModel.isEditable.collectAsState()
+    val userActivities by viewModel.userActivities.collectAsState()
 
     // userId dell'utente loggato
     val loggedUserId = sharedUserViewModel.user.value?.userId ?: "" // ?: Elvis operator per settare a "" qualora fosse null userId
@@ -58,6 +64,7 @@ fun UserProfileScreen(
     // Carica i dati dell'utente al primo avvio di questa schermata
     LaunchedEffect(loggedUserId) {
         viewModel.loadUserProfile(displayedUserId)
+        viewModel.loadUserActivities(displayedUserId)
     }
 
     val userState by viewModel.userState.collectAsState()
@@ -93,6 +100,8 @@ fun UserProfileScreen(
                 birthDate = birthDate,
                 onBirthDateChange = { birthDate = it },
                 modifier = Modifier.padding(innerPadding),
+                userActivities = userActivities,
+                navController = navController,
                 isEditable = isEditable
             )
         },
@@ -118,9 +127,12 @@ fun UserProfileContent(
     birthDate: String,
     onBirthDateChange: (String) -> Unit,
     viewModel: UserProfileScreenViewModel = viewModel(),
+    userActivities: List<Activity>,
     isEditable: Boolean,
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -138,18 +150,14 @@ fun UserProfileContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-//                Text(
-//                    text = "User Profile",
-//                    style = MaterialTheme.typography.titleLarge,
-//                    color = MaterialTheme.colorScheme.onPrimary
-//                )
+
                 // Pulsante Salva
                 if (isOwner) {
 
                     // Recupera il Context per poter mostrare il Toast
                     val context = LocalContext.current
                     if (!isEditable) {
-                        Row(Modifier.fillMaxWidth()){
+                        Row(Modifier.fillMaxWidth()) {
                             Text(
                                 text = "Your Profile",
                                 style = MaterialTheme.typography.headlineLarge,
@@ -164,8 +172,8 @@ fun UserProfileContent(
                                 )
                             }
                         }
-                    }else{
-                        Row (Modifier.fillMaxWidth()) {
+                    } else {
+                        Row(Modifier.fillMaxWidth()) {
                             Text(
                                 text = "Your Profile",
                                 style = MaterialTheme.typography.headlineLarge,
@@ -179,116 +187,49 @@ fun UserProfileContent(
                                     contentDescription = "Make profile not editable"
                                 )
                             }
-                            IconButton(onClick = {try {
-                                val parsedWeight = weight.toDoubleOrNull()
-                                val parsedBirthDate =
-                                    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(
-                                        birthDate
-                                    )
-                                if (parsedWeight == null || parsedBirthDate == null) {
-                                    Toast.makeText(context, "Invalid input", Toast.LENGTH_SHORT).show()
-                                }
-                                parsedWeight?.let {
-                                    User(
-                                        userId = userId,
-                                        name = name,
-                                        weight = it,
-                                        email = email,
-                                        birthdate = parsedBirthDate
-                                    )
-                                }?.let {
-                                    viewModel.updateUserProfile(
-                                        it
-                                    )
-                                }
-                                viewModel.toggleEditable()
-                                // Mostra il Toast dopo il salvataggio
-                                Toast.makeText(context, "Profilo aggiornato con successo!", Toast.LENGTH_SHORT).show()
+                            IconButton(onClick = {
+                                try {
+                                    val parsedWeight = weight.toDoubleOrNull()
+                                    val parsedBirthDate =
+                                        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(
+                                            birthDate
+                                        )
+                                    if (parsedWeight == null || parsedBirthDate == null) {
+                                        Toast.makeText(context, "Invalid input", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                    parsedWeight?.let {
+                                        User(
+                                            userId = userId,
+                                            name = name,
+                                            weight = it,
+                                            email = email,
+                                            birthdate = parsedBirthDate
+                                        )
+                                    }?.let {
+                                        viewModel.updateUserProfile(
+                                            it
+                                        )
+                                    }
+                                    viewModel.toggleEditable()
+                                    // Mostra il Toast dopo il salvataggio
+                                    Toast.makeText(
+                                        context,
+                                        "Profilo aggiornato con successo!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
 
-                            } catch (e: Exception) {
-                                Log.e("UserProfileContent", "Error parsing input fields", e)
-                            }}){
+                                } catch (e: Exception) {
+                                    Log.e("UserProfileContent", "Error parsing input fields", e)
+                                }
+                            }) {
                                 Icon(
                                     Icons.Rounded.Check,
                                     contentDescription = "Make profile not editable"
                                 )
                             }
                         }
-                        }
-
-//                    IconButton(onClick = {
-//                        try {
-//                            val parsedWeight = weight.toDoubleOrNull()
-//                            val parsedBirthDate =
-//                                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(
-//                                    birthDate
-//                                )
-//                            if (parsedWeight == null || parsedBirthDate == null) {
-//                                Toast.makeText(context, "Invalid input", Toast.LENGTH_SHORT).show()
-//                            }
-//                            parsedWeight?.let {
-//                                User(
-//                                    userId = userId,
-//                                    name = name,
-//                                    weight = it,
-//                                    email = email,
-//                                    birthdate = parsedBirthDate
-//                                )
-//                            }?.let {
-//                                viewModel.updateUserProfile(
-//                                    it
-//                                )
-//                            }
-//                            // Mostra il Toast dopo il salvataggio
-//                            Toast.makeText(context, "Profilo aggiornato con successo!", Toast.LENGTH_SHORT).show()
-//
-//                        } catch (e: Exception) {
-//                            Log.e("UserProfileContent", "Error parsing input fields", e)
-//                        }
-//                    }
-//                    , ) {
-//                        androidx.compose.material.Icon(
-//                            Icons.Rounded.Edit,
-//                            contentDescription = "Make profile editable"
-//                        )
-//                    }
-
-
-//                    TextButton(
-//                        onClick = {
-//                            try {
-//                                val parsedWeight = weight.toDoubleOrNull()
-//                                val parsedBirthDate =
-//                                    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(
-//                                        birthDate
-//                                    )
-//                                if (parsedWeight == null || parsedBirthDate == null) {
-//                                    // Gestisci l'errore, es: messaggio di errore
-//                                    return@TextButton
-//                                }
-//                                viewModel.updateUserProfile(
-//                                    User(
-//                                        userId = userId,
-//                                        name = name,
-//                                        weight = parsedWeight,
-//                                        email = email,
-//                                        birthdate = parsedBirthDate
-//                                    )
-//                                )
-//                                // Mostra il Toast dopo il salvataggio
-//                                Toast.makeText(context, "Profilo aggiornato con successo!", Toast.LENGTH_SHORT).show()
-//
-//                            } catch (e: Exception) {
-//                                Log.e("UserProfileContent", "Error parsing input fields", e)
-//                            }
-//                        }
-//                    ) {
-//                        Text(
-//                            text = "Salva",
-//                            color = MaterialTheme.colorScheme.onPrimary,
-//                            style = MaterialTheme.typography.bodyLarge
-//                        )
-//                    }
+                    }
                 }
             }
         }
@@ -304,7 +245,7 @@ fun UserProfileContent(
             // Immagine del profilo
             Box(
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(80.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .clickable {
@@ -328,7 +269,7 @@ fun UserProfileContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Nome
             OutlinedTextField(
@@ -346,26 +287,6 @@ fun UserProfileContent(
                     disabledBorderColor = Color.DarkGray,
                     disabledTextColor = Color.DarkGray
                 )
-//                colors = TextFieldDefaults.outlinedTextFieldColors(
-//                    // Colore del testo quando è in focus o no
-//                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-//                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-//
-//                    // Bordo quando è in focus o no
-//                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-//                    unfocusedBorderColor = Color.Gray,
-//                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
-//
-//                    // Label quando è in focus o no
-//                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-//                    unfocusedLabelColor = Color.Gray,
-//                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
-//
-//                    // Testo quando è disabilitato
-//                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
-//                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
-//
-//                    )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -387,21 +308,6 @@ fun UserProfileContent(
                     disabledTextColor = Color.DarkGray
 
                 )
-//                colors = TextFieldDefaults.outlinedTextFieldColors(
-//                    // Bordo quando è in focus o no
-//                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-//                    unfocusedBorderColor = Color.Gray,
-//                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
-//
-//                    // Label quando è in focus o no
-//                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-//                    unfocusedLabelColor = Color.Gray,
-//                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
-//
-//                    // Testo quando è disabilitato
-//                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
-//                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
-//                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -422,25 +328,6 @@ fun UserProfileContent(
                     disabledBorderColor = Color.DarkGray,
                     disabledTextColor = Color.DarkGray
                 )
-//                colors = TextFieldDefaults.outlinedTextFieldColors(
-//                    // Colore del testo quando è in focus o no
-//                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-//                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-//
-//                    // Bordo quando è in focus o no
-//                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-//                    unfocusedBorderColor = Color.Gray,
-//                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
-//
-//                    // Label quando è in focus o no
-//                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-//                    unfocusedLabelColor = Color.Gray,
-//                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
-//
-//                    // Testo quando è disabilitato
-//                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
-//                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
-//                    )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -460,74 +347,53 @@ fun UserProfileContent(
                     focusedTextColor = Color.Black,
                     disabledBorderColor = Color.DarkGray,
                     disabledTextColor = Color.DarkGray
-
                 )
-//                colors = TextFieldDefaults.outlinedTextFieldColors(
-//                    // Colore del testo quando è in focus o no
-//                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-//                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-//
-//                    // Bordo quando è in focus o no
-//                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-//                    unfocusedBorderColor = Color.Gray,
-//                    disabledBorderColor = Color.Gray, // Bordo quando è disabilitato
-//
-//                    // Label quando è in focus o no
-//                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-//                    unfocusedLabelColor = Color.Gray,
-//                    disabledLabelColor = Color.Gray, // Label quando è disabilitata
-//
-//                    // Testo quando è disabilitato
-//                    disabledTextColor = Color.Black.copy(alpha = 0.4f), // Testo disabilitato più visibile
-//                    disabledPlaceholderColor = Color.Black.copy(alpha = 0.4f)
-//
-//                    )
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Spazio per Milestones
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "Milestones")
+            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                Text(
+                    text = "Le tue attività",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (userActivities.isNotEmpty()) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(userActivities.size) { index ->
+                        val activity = userActivities[index]
+                        ActivityCard(activity = activity, navController)
+                    }
+                }
 
-            // Spazio per Attività
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "Le tue attività")
+            }else{
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                    Text(text = "You have no activities")
+                }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun UserProfileScreenPreview() {
-    GardenBuddyTheme(darkTheme = true) {
-        UserProfileContent(
-            isOwner = true,
-            userId = "123",
-            name = "Mario Rossi",
-            onNameChange = {},
-            email = "mario.rossi@example.com",
-            weight = "75",
-            onWeightChange = {},
-            birthDate = "15/04/1985",
-            onBirthDateChange = {},
-            isEditable = true
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun UserProfileScreenPreview() {
+//    GardenBuddyTheme(darkTheme = true) {
+//        UserProfileContent(
+//            isOwner = true,
+//            userId = "123",
+//            name = "Mario Rossi",
+//            onNameChange = {},
+//            email = "mario.rossi@example.com",
+//            weight = "75",
+//            onWeightChange = {},
+//            birthDate = "15/04/1985",
+//            onBirthDateChange = {},
+//            userActivities = List<Activity>(
+//                size = TODO(),
+//                init = TODO()
+//            ),
+//            isEditable = true
+//        )
+//    }
+//}

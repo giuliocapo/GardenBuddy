@@ -38,7 +38,6 @@ fun WeatherCard(
             .padding(16.dp)
             .shadow(elevation = 16.dp, shape = RoundedCornerShape(16.dp))
             .background(brush = gradient, shape = RoundedCornerShape(16.dp)), // Applica il gradiente
-
     ){
 
             Row(

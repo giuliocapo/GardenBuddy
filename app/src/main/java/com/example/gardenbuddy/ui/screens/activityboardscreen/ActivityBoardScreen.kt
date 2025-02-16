@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,7 +82,7 @@ fun ActivityBoardScreen(
                 )
 
                 // Lista delle attività
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(8.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(activities.value) { activity ->
                         ActivityCard(activity, navController)
                     }
@@ -89,140 +91,93 @@ fun ActivityBoardScreen(
         }
     )
 }
-//
-//@Composable
-//fun ActivityCard(activity: Activity , navController: NavController) {
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(8.dp)
-//            .clickable {
-//
-//                // Quando clicchi sulla card, navighi al profilo di quell'utente
-//                navController.navigate("userProfile/${activity.userId}")
-//            },
-//        colors = CardDefaults.cardColors(
-//            containerColor = MaterialTheme.colorScheme.primary
-//        ),
-//        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-//    ) {
-//        Column(modifier = Modifier.padding(16.dp)) {
-//            Text(
-//                text = "Utente: ${activity.username}",
-//                style = MaterialTheme.typography.titleLarge,
-//                color = MaterialTheme.colorScheme.onPrimary
-//            )
-//            Text(
-//                text = "Minuti: ${activity.minutes}",
-//                color = MaterialTheme.colorScheme.onPrimary
-//            )
-//            Text(
-//                text = "Passi: ${activity.steps}",
-//                color = MaterialTheme.colorScheme.onPrimary
-//            )
-//            Text(
-//                text = "Calorie: ${activity.calories} kcal",
-//                color = MaterialTheme.colorScheme.onPrimary
-//            )
-//        }
-//    }
-//}
 
 @Composable
 fun ActivityCard(activity: Activity, navController: NavController) {
-    ElevatedCard(
-        onClick = {
-            // Navigate to the user's profile when the card is clicked.
-            navController.navigate("userProfile/${activity.userId}")
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(Color.White),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        )
-    ) {
-        Box(modifier = Modifier.fillMaxWidth()
-            .background(color = Color.White, shape = RoundedCornerShape(16.dp))
-            ){
-            Column(modifier = Modifier.padding(16.dp)) {
-                // Header row with user icon and username
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFFCCDEC1), Color(0xFF8CB48D))
+    )
+
+    Box(modifier = Modifier.fillMaxWidth()
+        .fillMaxWidth()
+        .shadow(elevation = 16.dp, shape = RoundedCornerShape(16.dp))
+        .background(brush = gradient, shape = RoundedCornerShape(16.dp))
+        .clickable { navController.navigate("userProfile/${activity.userId}") }
+        ){
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Header row with user icon and username
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "User Icon",
+                    tint = Color.Black
+                )
+                Text(
+                    text = activity.username,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Black
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Divider(color = Color.Gray)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Row containing the three metrics with icons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Time
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "User Icon",
+                        imageVector = Icons.Default.AccessTime,
+                        contentDescription = "Time",
                         tint = Color.Black
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = activity.username,
-                        style = MaterialTheme.typography.titleMedium,
+                        text = "${activity.minutes} min",
+                        style = MaterialTheme.typography.bodyMedium,
                         color = Color.Black
                     )
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Divider(color = Color.Gray)
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Row containing the three metrics with icons
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Time
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.AccessTime,
-                            contentDescription = "Time",
-                            tint = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "${activity.minutes} min",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Black
-                        )
-                    }
-                    // Steps
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.DirectionsWalk,
-                            contentDescription = "Steps",
-                            tint = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "${activity.steps} steps",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Black
-                        )
-                    }
-                    // Calories
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.LocalFireDepartment,
-                            contentDescription = "Calories Burned",
-                            tint = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "${activity.calories} kcal",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Black
-                        )
-                    }
+                // Steps
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Icons.Default.DirectionsWalk,
+                        contentDescription = "Steps",
+                        tint = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${activity.steps} steps",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black
+                    )
+                }
+                // Calories
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Icons.Default.LocalFireDepartment,
+                        contentDescription = "Calories Burned",
+                        tint = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${activity.calories} kcal",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black
+                    )
                 }
             }
         }
-
     }
 }
 
