@@ -46,31 +46,46 @@ fun recognizeImage(context: Context, bitmap: Bitmap) {
 
     // Configura il client con le opzioni predefinite
     val labelerOptions = ImageLabelerOptions.Builder()
-        .setConfidenceThreshold(0.7f) // Soglia di confidenza per l'etichettatura (opzionale)
+        .setConfidenceThreshold(0.5f)
         .build()
+    try {
+        val labeler: ImageLabeler = ImageLabeling.getClient(labelerOptions)
 
-    val labeler: ImageLabeler = ImageLabeling.getClient(labelerOptions)
+        labeler.process(image)
+            .addOnSuccessListener { labels ->
+                // Stampa i label riconosciuti per il debugging
+                labels.forEach { label ->
+                    println("MLKitDebug Label: ${label.text}, Confidence: ${label.confidence}")
+                }
 
-    labeler.process(image)
-        .addOnSuccessListener { labels ->
-            // Stampa i label riconosciuti per il debugging
-            labels.forEach { label ->
-                println("MLKitDebug Label: ${label.text}, Confidence: ${label.confidence}")
+                // Controlla se l'immagine contiene etichette pertinenti a giardini o piante
+                val validLabels = labels.any { label: ImageLabel ->
+                    label.text.contains("garden", ignoreCase = true) || label.text.contains(
+                        "plant",
+                        ignoreCase = true
+                    ) || label.text.contains("flower", ignoreCase = true)
+                }
+                if (!validLabels) {
+                    Toast.makeText(
+                        context,
+                        "it seems there is no plant or garden in the image",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(context, "plant or garden detected", Toast.LENGTH_SHORT).show()
+                }
             }
+            .addOnFailureListener {
+                Toast.makeText(
+                    context,
+                    "it seems there is no plant or garden in the image",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    } catch (e: Exception) {
+        Toast.makeText(context, "it seems there is no plant or garden in the image", Toast.LENGTH_SHORT).show()
 
-            // Controlla se l'immagine contiene etichette pertinenti a giardini o piante
-            val validLabels = labels.any { label: ImageLabel ->
-                label.text.contains("garden", ignoreCase = true) || label.text.contains("plant", ignoreCase = true) || label.text.contains("flower", ignoreCase = true)
-            }
-            if(!validLabels){
-                Toast.makeText(context, "it seems there is no plant or garden in the image", Toast.LENGTH_SHORT).show()
-            }else {
-                Toast.makeText(context, "plant or garden detected", Toast.LENGTH_SHORT).show()
-            }
-        }
-        .addOnFailureListener {
-            Toast.makeText(context, "it seems there is no plant or garden in the image", Toast.LENGTH_SHORT).show()
-        }
+    }
 }
 
 // Funzione per la gestione della fotocamera

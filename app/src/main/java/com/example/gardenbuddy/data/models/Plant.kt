@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 data class Plant(
     val plantId : Long,
     val scientificName : String,
-    val species : String,
-    val family : String,
-    val parent : String,
-    val kingdom : String
+    val species : String = "not specified",
+    val family : String = "not specified",
+    val parent : String = "not specified",
+    val kingdom : String= "not specified"
 )
 
