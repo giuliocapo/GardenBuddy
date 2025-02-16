@@ -62,7 +62,7 @@ fun GardeningMonitoringScreen(user: User, modifier: Modifier) {
 private fun StartMonitoringCard(onStartMonitoring: () -> Unit) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(16.dp),
         elevation = 8.dp,
         shape = RoundedCornerShape(16.dp)
@@ -114,15 +114,17 @@ fun GardeningSessionCard(
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(16.dp),
         elevation = 12.dp,
         shape = RoundedCornerShape(16.dp)
 
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -145,8 +147,10 @@ fun GardeningSessionCard(
 
             // Stats Grid
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+
             ) {
                 MetricItem(
                     icon = Icons.AutoMirrored.Rounded.DirectionsWalk,
