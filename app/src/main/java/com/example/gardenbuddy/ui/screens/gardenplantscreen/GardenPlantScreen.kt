@@ -96,7 +96,7 @@ fun GardenPlantCard(plant: Plant, photos: List<String>, gardenScreenViewModel: G
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = plant.species,
+                        text = plant.species ?: "no data",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(vertical = 2.dp)
                     )
