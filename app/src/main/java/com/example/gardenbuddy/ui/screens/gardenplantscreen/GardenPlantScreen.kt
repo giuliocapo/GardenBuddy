@@ -93,7 +93,8 @@ fun GardenPlantCard(plant: Plant, photos: List<String>, gardenScreenViewModel: G
                     Text(
                         text = plant.scientificName,
                         style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+
                     )
                     Text(
                         text = plant.species ?: "no data",

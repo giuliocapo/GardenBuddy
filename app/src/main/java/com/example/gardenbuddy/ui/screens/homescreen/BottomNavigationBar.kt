@@ -1,5 +1,6 @@
 package com.example.gardenbuddy.ui.screens.homescreen
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,7 +36,7 @@ fun BottomNavigationBar(
     NavigationBar(
         containerColor = Color.White,
         contentColor = Color.Black,
-        modifier = Modifier.offset(y = 10.dp)
+        modifier = Modifier.offset(y = 16.dp)
 
     ) {
         NavigationBarItem(
@@ -48,7 +49,7 @@ fun BottomNavigationBar(
                     restoreState = true
                 }
             },
-            icon = { Icon(Icons.Rounded.Home, contentDescription = "Home", Modifier.size(32.dp)) },
+            icon = { Icon(Icons.Rounded.Home, contentDescription = "Home", Modifier.size(26.dp)) },
             label = { Text("Home") }
         )
         NavigationBarItem(
@@ -62,7 +63,7 @@ fun BottomNavigationBar(
                     restoreState = true
                 }
             },
-            icon = { Icon(painterResource(id = R.drawable.ic_garden), contentDescription = "Garden", Modifier.size(32.dp)) },
+            icon = { Icon(painterResource(id = R.drawable.ic_garden), contentDescription = "Garden", Modifier.size(26.dp)) },
             label = { Text("Garden") }
         )
         NavigationBarItem(
@@ -75,7 +76,7 @@ fun BottomNavigationBar(
                     restoreState = true
                 }
             },
-            icon = { Icon(painterResource(id = R.drawable.ic_social), contentDescription = "Social", Modifier.size(32.dp)) },
+            icon = { Icon(painterResource(id = R.drawable.ic_social), contentDescription = "Social", Modifier.size(26.dp)) },
             label = { Text("Social") }
         )
         NavigationBarItem(
@@ -93,7 +94,7 @@ fun BottomNavigationBar(
                     restoreState = true
                 }
             },
-            icon = { Icon(Icons.Rounded.Person, contentDescription = "Profile", Modifier.size(32.dp)) },
+            icon = { Icon(Icons.Rounded.Person, contentDescription = "Profile", Modifier.size(26.dp)) },
             label = { Text("Profile") }
         )
     }

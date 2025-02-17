@@ -359,7 +359,7 @@ fun UserProfileContent(
             }
 
             if (userActivities.isNotEmpty()) {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(userActivities.size) { index ->
                         val activity = userActivities[index]
                         ActivityCard(activity = activity, navController)
